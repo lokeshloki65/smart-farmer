@@ -1,0 +1,391 @@
+{
+  "state": "Tamil Nadu",
+  "data_source": "Comprehensive aggregated mock data for all Tamil Nadu district markets",
+  "timestamp": "2025-08-09T14:45:00+05:30",
+  "date": "2025-08-09",
+  "district_prices": [
+    {
+      "district": "Ariyalur",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 45.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 38.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 40.00 },
+        { "name": "Okra (வெண்டைக்காய்)", "price_per_kg": 35.00 },
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 60.00 }
+      ]
+    },
+    {
+      "district": "Chengalpattu",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 48.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 42.00 },
+        { "name": "Carrot (கேரட்)", "price_per_kg": 60.00 },
+        { "name": "Radish (முள்ளங்கி)", "price_per_kg": 38.00 },
+        { "name": "Greens (கீரை வகைகள்)", "price_per_kg": 30.00 }
+      ]
+    },
+    {
+      "district": "Chennai",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 50.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 45.00 },
+        { "name": "Potato (உருளைக்கிழங்கு)", "price_per_kg": 35.00 },
+        { "name": "Beans (பீன்ஸ்)", "price_per_kg": 70.00 },
+        { "name": "Carrot (கேரட்)", "price_per_kg": 65.00 },
+        { "name": "Cauliflower (காலிஃபிளவர்)", "price_per_kg": 50.00 },
+        { "name": "Cabbage (முட்டைக்கோஸ்)", "price_per_kg": 30.00 }
+      ]
+    },
+    {
+      "district": "Coimbatore",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 42.00 },
+        { "name": "Onion (பெரிய வெங்காயம்)", "price_per_kg": 35.00 },
+        { "name": "Onion (சின்ன வெங்காயம்)", "price_per_kg": 55.00 },
+        { "name": "Cabbage (முட்டைக்கோஸ்)", "price_per_kg": 25.00 },
+        { "name": "Beetroot (பீட்ரூட்)", "price_per_kg": 40.00 },
+        { "name": "Capsicum (குடைமிளகாய்)", "price_per_kg": 55.00 }
+      ]
+    },
+    {
+      "district": "Cuddalore",
+      "vegetables": [
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 38.00 },
+        { "name": "Drumstick (முருங்கைக்காய்)", "price_per_kg": 50.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 44.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Cashew (முந்திரி)", "price_per_kg": 650.00 }
+      ]
+    },
+    {
+      "district": "Dharmapuri",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 40.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 33.00 },
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 60.00 },
+        { "name": "Mango (மாங்காய்)", "price_per_kg": 55.00 },
+        { "name": "Ragi (கேழ்வரகு)", "price_per_kg": 40.00 }
+      ]
+    },
+    {
+      "district": "Dindigul",
+      "vegetables": [
+        { "name": "Onion (சின்ன வெங்காயம்)", "price_per_kg": 50.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 41.00 },
+        { "name": "Garlic (பூண்டு)", "price_per_kg": 180.00 },
+        { "name": "Grapes (திராட்சை)", "price_per_kg": 75.00 },
+        { "name": "Guava (கொய்யா)", "price_per_kg": 60.00 }
+      ]
+    },
+    {
+      "district": "Erode",
+      "vegetables": [
+        { "name": "Turmeric (மஞ்சள்)", "price_per_kg": 150.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 36.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 43.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 20.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 38.00 }
+      ]
+    },
+    {
+      "district": "Kallakurichi",
+      "vegetables": [
+        { "name": "Tapioca (மரவள்ளிக்கிழங்கு)", "price_per_kg": 30.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 35.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 38.00 },
+        { "name": "Corn (மக்காச்சோளம்)", "price_per_kg": 28.00 },
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 110.00 }
+      ]
+    },
+    {
+      "district": "Kancheepuram",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 47.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Radish (முள்ளங்கி)", "price_per_kg": 35.00 },
+        { "name": "Snake Gourd (புடலங்காய்)", "price_per_kg": 30.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 24.00 }
+      ]
+    },
+    {
+      "district": "Kanyakumari",
+      "vegetables": [
+        { "name": "Banana (Raw) (வாழைக்காய்)", "price_per_kg": 45.00 },
+        { "name": "Tapioca (மரவள்ளிக்கிழங்கு)", "price_per_kg": 40.00 },
+        { "name": "Coconut (தேங்காய்)", "price_per_kg": 38.00 },
+        { "name": "Jackfruit (பலாப்பழம்)", "price_per_kg": 50.00 },
+        { "name": "Rubber (ரப்பர்)", "price_per_kg": 180.00 }
+      ]
+    },
+    {
+      "district": "Karur",
+      "vegetables": [
+        { "name": "Drumstick (முருங்கைக்காய்)", "price_per_kg": 55.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 37.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 42.00 },
+        { "name": "Betel Leaves (வெற்றிலை)", "price_per_kg": 90.00 },
+        { "name": "Okra (வெண்டைக்காய்)", "price_per_kg": 34.00 }
+      ]
+    },
+    {
+      "district": "Krishnagiri",
+      "vegetables": [
+        { "name": "Mango (மாங்காய்)", "price_per_kg": 60.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 39.00 },
+        { "name": "Beans (பீன்ஸ்)", "price_per_kg": 65.00 },
+        { "name": "Ragi (கேழ்வரகு)", "price_per_kg": 42.00 },
+        { "name": "Tamarind (புளி)", "price_per_kg": 120.00 }
+      ]
+    },
+    {
+      "district": "Madurai",
+      "vegetables": [
+        { "name": "Jasmine (மல்லிகைப்பூ)", "price_per_kg": 800.00 },
+        { "name": "Onion (சின்ன வெங்காயம்)", "price_per_kg": 58.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 45.00 },
+        { "name": "Guava (கொய்யா)", "price_per_kg": 65.00 },
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 40.00 }
+      ]
+    },
+    {
+      "district": "Mayiladuthurai",
+      "vegetables": [
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 40.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 39.00 },
+        { "name": "Banana Flower (வாழைப்பூ)", "price_per_kg": 20.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 22.00 },
+        { "name": "Coconut (தேங்காய்)", "price_per_kg": 36.00 }
+      ]
+    },
+    {
+      "district": "Nagapattinam",
+      "vegetables": [
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 46.00 },
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 65.00 },
+        { "name": "Fish (மீன்)", "price_per_kg": 250.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 22.00 }
+      ]
+    },
+    {
+      "district": "Namakkal",
+      "vegetables": [
+        { "name": "Egg (முட்டை)", "price_per_kg": 72.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 36.00 },
+        { "name": "Tapioca (மரவள்ளிக்கிழங்கு)", "price_per_kg": 32.00 },
+        { "name": "Corn (மக்காச்சோளம்)", "price_per_kg": 26.00 },
+        { "name": "Millet (சிறுதானியங்கள்)", "price_per_kg": 50.00 }
+      ]
+    },
+    {
+      "district": "Nilgiris",
+      "vegetables": [
+        { "name": "Carrot (கேரட்)", "price_per_kg": 50.00 },
+        { "name": "Potato (உருளைக்கிழங்கு)", "price_per_kg": 40.00 },
+        { "name": "Tea Leaves (தேயிலை)", "price_per_kg": 300.00 },
+        { "name": "Cabbage (முட்டைக்கோஸ்)", "price_per_kg": 35.00 },
+        { "name": "Beetroot (பீட்ரூட்)", "price_per_kg": 45.00 }
+      ]
+    },
+    {
+      "district": "Perambalur",
+      "vegetables": [
+        { "name": "Onion (சின்ன வெங்காயம்)", "price_per_kg": 52.00 },
+        { "name": "Corn (மக்காச்சோளம்)", "price_per_kg": 25.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 40.00 },
+        { "name": "Cotton (பருத்தி)", "price_per_kg": 70.00 },
+        { "name": "Tapioca (மரவள்ளிக்கிழங்கு)", "price_per_kg": 30.00 }
+      ]
+    },
+    {
+      "district": "Pudukkottai",
+      "vegetables": [
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 120.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 38.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 39.00 },
+        { "name": "Cashew (முந்திரி)", "price_per_kg": 680.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 23.00 }
+      ]
+    },
+    {
+      "district": "Ramanathapuram",
+      "vegetables": [
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 70.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 42.00 },
+        { "name": "Coconut (தேங்காய்)", "price_per_kg": 35.00 },
+        { "name": "Palm Jaggery (கருப்பட்டி)", "price_per_kg": 250.00 },
+        { "name": "Guava (கொய்யா)", "price_per_kg": 60.00 }
+      ]
+    },
+    {
+      "district": "Ranipet",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 46.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 41.00 },
+        { "name": "Potato (உருளைக்கிழங்கு)", "price_per_kg": 33.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 24.00 },
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 115.00 }
+      ]
+    },
+    {
+      "district": "Salem",
+      "vegetables": [
+        { "name": "Mango (மாம்பழம்)", "price_per_kg": 80.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 40.00 },
+        { "name": "Tapioca (மரவள்ளிக்கிழங்கு)", "price_per_kg": 28.00 },
+        { "name": "Turmeric (மஞ்சள்)", "price_per_kg": 140.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 35.00 }
+      ]
+    },
+    {
+      "district": "Sivaganga",
+      "vegetables": [
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 125.00 },
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 68.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 22.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 23.00 }
+      ]
+    },
+    {
+      "district": "Tenkasi",
+      "vegetables": [
+        { "name": "Lemon (எலுமிச்சை)", "price_per_kg": 80.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 39.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 44.00 },
+        { "name": "Gooseberry (நெல்லிக்காய்)", "price_per_kg": 70.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 40.00 }
+      ]
+    },
+    {
+      "district": "Thanjavur",
+      "vegetables": [
+        { "name": "Paddy (நெல்)", "price_per_kg": 22.00 },
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 40.00 },
+        { "name": "Coconut (தேங்காய்)", "price_per_kg": 34.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 21.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 39.00 }
+      ]
+    },
+    {
+      "district": "Theni",
+      "vegetables": [
+        { "name": "Grapes (திராட்சை)", "price_per_kg": 70.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 35.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 40.00 },
+        { "name": "Cardamom (ஏலக்காய்)", "price_per_kg": 1200.00 },
+        { "name": "Coffee (காபி)", "price_per_kg": 250.00 }
+      ]
+    },
+    {
+      "district": "Thoothukudi",
+      "vegetables": [
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 38.00 },
+        { "name": "Drumstick (முருங்கைக்காய்)", "price_per_kg": 60.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 41.00 },
+        { "name": "Salt (உப்பு)", "price_per_kg": 10.00 },
+        { "name": "Palm Fruit (நுங்கு)", "price_per_kg": 50.00 }
+      ]
+    },
+    {
+      "district": "Tiruchirappalli",
+      "vegetables": [
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 35.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 45.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 38.00 },
+        { "name": "Flower (பூக்கள்)", "price_per_kg": 200.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 23.00 }
+      ]
+    },
+    {
+      "district": "Tirunelveli",
+      "vegetables": [
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 36.00 },
+        { "name": "Onion (சின்ன வெங்காயம்)", "price_per_kg": 60.00 },
+        { "name": "Betel Leaves (வெற்றிலை)", "price_per_kg": 100.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 22.00 },
+        { "name": "Palm Jaggery (கருப்பட்டி)", "price_per_kg": 260.00 }
+      ]
+    },
+    {
+      "district": "Tirupathur",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 44.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 39.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 42.00 },
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 118.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 24.00 }
+      ]
+    },
+    {
+      "district": "Tiruppur",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 43.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 37.00 },
+        { "name": "Cauliflower (காலிஃபிளவர்)", "price_per_kg": 45.00 },
+        { "name": "Cabbage (முட்டைக்கோஸ்)", "price_per_kg": 28.00 },
+        { "name": "Cotton (பருத்தி)", "price_per_kg": 75.00 }
+      ]
+    },
+    {
+      "district": "Tiruvallur",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 49.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 43.00 },
+        { "name": "Greens (கீரை வகைகள்)", "price_per_kg": 30.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 23.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 44.00 }
+      ]
+    },
+    {
+      "district": "Tiruvannamalai",
+      "vegetables": [
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 110.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 37.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 42.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 22.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 23.00 }
+      ]
+    },
+    {
+      "district": "Tiruvarur",
+      "vegetables": [
+        { "name": "Paddy (நெல்)", "price_per_kg": 21.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Brinjal (கத்திரிக்காய்)", "price_per_kg": 41.00 },  
+        { "name": "Coconut (தேங்காய்)", "price_per_kg": 35.00 },
+        { "name": "Banana (வாழைப்பழம்)", "price_per_kg": 38.00 }
+      ]
+    },
+    {
+      "district": "Vellore",
+      "vegetables": [
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 44.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Beans (பீன்ஸ்)", "price_per_kg": 68.00 },
+        { "name": "Paddy (நெல்)", "price_per_kg": 24.00 },
+        { "name": "Jaggery (வெல்லம்)", "price_per_kg": 60.00 }
+      ]
+    },
+    {
+      "district": "Viluppuram",
+      "vegetables": [
+        { "name": "Cashew (முந்திரி)", "price_per_kg": 700.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 38.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 43.00 },
+        { "name": "Groundnut (நிலக்கடலை)", "price_per_kg": 115.00 },
+        { "name": "Sugarcane (கரும்பு)", "price_per_kg": 22.00 }
+      ]
+    },
+    {
+      "district": "Virudhunagar",
+      "vegetables": [
+        { "name": "Chilli (மிளகாய்)", "price_per_kg": 75.00 },
+        { "name": "Onion (வெங்காயம்)", "price_per_kg": 40.00 },
+        { "name": "Tomato (தக்காளி)", "price_per_kg": 46.00 },
+        { "name": "Coriander (கொத்தமல்லி)", "price_per_kg": 80.00 },
+        { "name": "Cotton (பருத்தி)", "price_per_kg": 72.00 }
+      ]
+    }
+  ]
+}

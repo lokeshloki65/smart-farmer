@@ -1,0 +1,3489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>🌿AI Agri Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    :root {
+        --primary-color: #27AE60;
+        --primary-hover: #229954;
+        --primary-glow: #229954;
+        --secondary-color: #1e272e;
+        --light-bg: #f1f5f9;
+        --white-bg: #ffffff;
+        --text-dark: #2c3e50;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--light-bg);
+        color: var(--text-dark);
+        margin: 0; padding: 0; display: flex;
+        overflow-x: hidden;
+    }
+
+    /* Base Animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(3000deg); } }
+    @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+
+    @keyframes slideInFromTop {
+        from {
+            transform: translateY(-40px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* --- NEW CHATBOT STYLES --- */
+    .chatbot-toggler {
+        position: fixed;
+        bottom: 72px;
+        right: 30px;
+        z-index: 1050;
+        height: 55px;
+        width: 55px;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: transform 0.2s ease-in-out, background-color 0.2s;
+    }
+
+    .chatbot-toggler:hover {
+        transform: scale(1.1);
+        background-color: var(--primary-hover);
+    }
+
+    .chatbot-toggler span {
+        position: absolute;
+
+    }
+
+    .show-chatbot .chatbot-toggler span:first-child,
+    .chatbot-toggler span:last-child {
+        opacity: 0;
+    }
+
+    .show-chatbot .chatbot-toggler span:last-child {
+        opacity: 1;
+
+    }
+
+   .chatbot-container {
+    position: fixed;
+    bottom: 0px;
+    right: 35px;
+    width: 450px;
+    height: 600px;
+    z-index: 1040;
+    background: var(--white-bg);
+    border-radius: 15px;
+    box-shadow: 0 0 128px 0 rgba(0,0,0,0.1), 0 32px 64px -48px rgba(0,0,0,0.5);
+    transform: scale(0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
+    transform-origin: bottom right;
+    display: flex;
+    flex-direction: column;
+}
+
+    .show-chatbot .chatbot-container {
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .chatbot-container .chatbox {
+        overflow-y: auto;
+        height: 510px;
+        padding: 25px 20px 100px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .chatbox .chat {
+        display: flex;
+        max-width: 95%;
+    }
+    .chatbox .chat p {
+        padding: 12px 16px;
+        border-radius: 18px 18px 0 18px;
+        background: var(--primary-color);
+        color: white;
+        font-size: 0.95rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+    }
+    .chatbox .chat.incoming p {
+        background: #f2f2f2;
+        color: #000;
+        border-radius: 18px 18px 18px 0;
+    }
+    .chatbox .chat .fa-robot, .chatbox .chat .fa-user {
+        font-size: 1.2rem;
+        color: white;
+        background: var(--primary-color);
+        height: 32px;
+        width: 32px;
+        text-align: center;
+        line-height: 32px;
+        border-radius: 4px;
+        margin: 0 10px 7px 0;
+        align-self: flex-end;
+    }
+    .chatbox .chat.incoming .fa-robot {
+        color: white;
+        background: var(--primary-color);
+        margin: 0 10px 7px 0;
+    }
+    .chatbox .chat.outgoing {
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+
+    .chatbot-container .chat-input {
+        display: flex;
+        gap: 5px;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        border-top: 1px solid #ddd;
+        border-radius: 0 0 15px 15px;
+        box-sizing: border-box;
+    }
+    .chat-input textarea {
+        height: 55px;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        resize: none;
+        padding: 15px;
+        font-size: 0.95rem;
+        outline: none;
+        font-family: 'Poppins', sans-serif;
+        box-sizing: border-box;
+    }
+    .chat-input span {
+        align-self: flex-end;
+        height: 55px;
+        width: 55px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+    .chat-input span:hover {
+        background: var(--primary-hover);
+    }
+    /* --- END OF CHATBOT STYLES --- */
+
+
+    /* Loading Overlay */
+    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 9999; display: none; justify-content: center; align-items: center; color: white; font-size: 1.5rem; }
+    .spinner { border: 8px solid #f3f3f3; border-top: 8px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+
+    /* Layout: Header & Sidebar */
+    header {
+        position: fixed; top: 0; left: 220px; right: 0;
+        background: linear-gradient(90deg, #27AE60, var(--primary-color));
+        color: white; display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 30px; z-index: 1000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        animation: slideDown 0.6s ease-out;
+    }
+
+    header h1 {
+        margin: 0; font-size: 1.6rem; font-weight: 600;
+        display: flex; align-items: center; gap: 12px;
+    }
+
+    .hamburger-menu {
+        display: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        z-index: 1003;
+    }
+
+    /* PROFILE STYLES START */
+    .user-profile {
+        position: relative;
+        display: none; /* Initially hidden */
+        align-items: center;
+        cursor: pointer;
+    }
+
+    #header-profile-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 12px;
+        border: 2px solid white;
+    }
+
+    #username-display {
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    .profile-dropdown {
+        display: none;
+        position: absolute;
+        top: 140%;
+        right: 0;
+        background-color: var(--white-bg);
+        color: var(--text-dark);
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        padding: 15px 20px;
+        width: 250px;
+        z-index: 1001;
+        border-top: 3px solid var(--primary-color);
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    .profile-dropdown p {
+        margin: 0 0 12px 0;
+        font-size: 0.95rem;
+        word-wrap: break-word;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .profile-dropdown .edit-profile-btn {
+        color: var(--primary-color);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+        margin-left: 10px;
+    }
+    .profile-dropdown .edit-profile-btn:hover {
+        color: var(--primary-hover);
+    }
+
+    .profile-dropdown a {
+        display: block;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+        transition: color 0.2s;
+    }
+
+    .profile-dropdown a:hover {
+        color: var(--primary-hover);
+    }
+
+    .user-profile.active .profile-dropdown {
+        display: block;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    /* PROFILE STYLES END */
+
+
+    .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100%; background-color: var(--secondary-color); color: white; display: flex; flex-direction: column; align-items: flex-start; z-index: 1001; animation: slideInLeft 0.6s ease-out; }
+
+    #sidebar-weather-widget { padding: 20px 15px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: none; flex-direction: column; align-items: center; gap: 5px; color: #f1f5f9; background-color: rgba(0, 0, 0, 0.1); width: 100%; box-sizing: border-box; }
+    #sidebar-weather-widget i { font-size: 2.5rem; margin-bottom: 8px; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    #sidebar-weather-widget #weather-temp { font-size: 1.6rem; font-weight: 600; }
+    #sidebar-weather-widget #weather-location { font-size: 0.9rem; font-weight: 400; opacity: 0.9; }
+
+    .sidebar a { padding: 15px 25px; color: white; text-decoration: none; width: 100%; display: flex; align-items: center; box-sizing: border-box; font-weight: 500; position: relative; transition: color 0.3s ease; }
+    .sidebar a::before { content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 0; background-color: var(--primary-color); z-index: -1; transition: width 0.3s ease-in-out; }
+    .sidebar a:hover::before { width: 100%; }
+    .sidebar a i { margin-right: 15px; width: 20px; text-align: center; }
+
+    .content { margin-left: 220px; padding-top: 70px; width: calc(100% - 220px); height: calc(100vh - 70px); overflow-y: auto; }
+
+
+   .container {
+        display: none; flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 30px;
+        animation: fadeIn 0.5s ease-in-out;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        width: 100%;
+        min-height: 100%;
+        box-sizing: border-box;
+    }
+
+    /* --- NEW --- Added styles for the prices container */
+    #prices.container {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    /* CODE MODIFICATION: Increased width of content boxes */
+    #disease .box,
+    #prices .box,
+    #planner .box,
+    #buysell .box,
+    #loan .box,
+    #edit-profile .box,
+    #community .box{
+    max-width: 600px !important; /* <--- This !important is crucial */
+}
+.box {
+    flex-grow: 0; flex-shrink: 1; background-color: var(--white-bg); border-radius: 16px;
+    padding: 30px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); border-top: 5px solid var(--primary-color);
+}
+
+    #weather .box {
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 25px;
+    }
+
+    /* EDIT PROFILE STYLES */
+    .profile-pic-uploader {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 25px;
+    }
+    .profile-pic-uploader img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-color);
+    }
+    .profile-pic-uploader label {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 40px;
+        height: 40px;
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .profile-pic-uploader label:hover {
+        background-color: var(--primary-color);
+    }
+    .profile-pic-uploader input[type="file"] {
+        display: none;
+    }
+    #edit-profile-form label {
+        display: block;
+        text-align: left;
+        font-weight: 500;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+    #edit-profile-form input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    #edit-profile-form input:disabled {
+        background-color: #f2f2f2;
+        cursor: not-allowed;
+    }
+    .form-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+    .form-buttons button {
+        flex: 1;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--primary-color);
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+    .form-buttons button.back-btn {
+        background-color: #7f8c8d;
+    }
+     .form-buttons button.back-btn:hover {
+        background-color: #95a5a6;
+    }
+    .form-buttons button:hover {
+        background-color: var(--primary-hover);
+    }
+    /* END OF EDIT PROFILE STYLES */
+
+    #disease .box label,
+    #prices .box label,
+    #planner .box label,
+    #buysell .box label,
+    #loan .box label {
+        display: block;
+        text-align: left;
+        font-weight: 500;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+
+    #disease .box input,
+    #disease .box select,
+    #prices .box input,
+    #prices .box select,
+    #planner .box input,
+    #planner .box select,
+    #buysell .box input,
+    #buysell .box select,
+    #loan .box input,
+    #loan .box textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    #loan .box textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    #disease .box button,
+    #prices .box button,
+    #planner .box button,
+    #buysell .box button,
+    #loan .box button,
+    #tutorials .box button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--primary-color);
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    #disease .box button:hover,
+    #prices .box button:hover,
+    #planner .box button:hover ,
+    #buysell .box button:hover,
+    #loan .box button:hover,
+    #tutorials .box button:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.3s, background-color 0.3s;
+    }
+    .file-input-wrapper:hover {
+        border-color: var(--primary-color);
+        background-color: #f9f9f9;
+    }
+    .file-input-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .file-input-wrapper .file-input-label {
+        color: #555;
+        font-weight: 500;
+    }
+    .file-input-wrapper .file-input-label i {
+        display: block;
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+    .file-name {
+        margin-top: 10px;
+        font-style: italic;
+        color: var(--primary-hover);
+        font-weight: 500;
+    }
+    .loan-suggestion {
+        background-color: #e8f8f5;
+        border-left: 5px solid var(--primary-color);
+        padding: 20px;
+        margin-top: 20px;
+        text-align: left;
+        border-radius: 8px;
+    }
+    .loan-suggestion h3 {
+        margin: 0 0 10px 0;
+        color: var(--primary-hover);
+    }
+
+    .terms-box {
+        height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: left;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        margin-top: 15px;
+        background-color: #fafafa;
+    }
+
+    .terms-check {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .popup-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); z-index: 10000;
+        display: none; justify-content: center; align-items: center;
+    }
+    .popup-content {
+        background: white; padding: 30px 40px; border-radius: 12px;
+        text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        animation: fadeInUp 0.5s;
+    }
+    .popup-content i {
+        font-size: 3rem; color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+    .popup-content p { font-size: 1.1rem; margin: 0 0 20px 0; }
+    .popup-close-btn {
+        padding: 10px 30px; border: none; background-color: var(--primary-color);
+        color: white; border-radius: 8px; cursor: pointer;
+    }
+
+    .weather-search-form, .tutorial-search-form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .weather-search-form input, .tutorial-search-form input {
+        flex-grow: 1;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1rem;
+    }
+    #weather .box button, #tutorials .box button {
+        width: auto;
+        padding: 0 25px;
+        border: none;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        flex-shrink: 0;
+    }
+    #weather .box button:hover, #tutorials .box button:hover {
+        background-color: var(--primary-hover);
+    }
+    #weather .box button i, #tutorials .box button i {
+        margin-right: 5px;
+    }
+
+    .form-divider {
+        text-align: center;
+        margin: 15px auto;
+        font-weight: 500;
+        color: #999;
+        max-width: 500px;
+    }
+
+    /* --- VEGETABLE INFO DETAILS --- */
+    #prices.container {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    #vegetable-info-details {
+        display: none;
+        width: 100%;
+        max-width: 1000px; /* Increased max-width */
+        margin-top: 30px;
+        background: var(--white-bg);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        z-index: 2;
+        position: relative;
+        flex-direction: row;
+        gap: 30px;
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    .veg-image-container {
+        flex: 1;
+        max-width: 350px;
+    }
+    #veg-info-image {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+    .veg-details-container {
+        flex: 2;
+    }
+    #veg-info-name {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary-hover);
+        margin: 0 0 15px 0;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+    }
+    .veg-info-section {
+        margin-bottom: 20px;
+    }
+    .veg-info-section h4 {
+        font-size: 1.2rem;
+        margin: 0 0 10px 0;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .veg-info-section h4 i {
+        color: var(--primary-color);
+    }
+    .veg-info-section p, .veg-info-section li {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: #555;
+    }
+    .nutrition-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .nutrition-table td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+    .nutrition-table td:first-child {
+        font-weight: 500;
+    }
+
+    /* --- Mobile View Changes for the new section --- */
+    @media (max-width: 920px) {
+        #vegetable-info-details {
+            flex-direction: column;
+        }
+    }
+    
+    /* ############################################################# */
+    /* ############## NEW ATTRACTIVE WEATHER STYLES ################ */
+    /* ############################################################# */
+
+    #weather-output {
+        margin-top: 25px;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .weather-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
+        gap: 20px;
+        grid-template-areas:
+            "current current hourly hourly"
+            "daily daily details details"
+            "daily daily aqi aqi";
+    }
+
+    .weather-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .current-weather-card {
+        grid-area: current;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, var(--primary-color), #2ecc71);
+        color: white;
+    }
+    .current-weather-info .location { font-size: 1.8rem; font-weight: 600; margin: 0; }
+    .current-weather-info .condition { font-size: 1.1rem; margin: 5px 0 10px 0; text-transform: capitalize; }
+    .current-weather-feels-like { font-size: 0.9rem; opacity: 0.9; }
+    .current-weather-temp { font-size: 4rem; font-weight: 600; line-height: 1; }
+    .current-weather-temp sup { font-size: 1.8rem; font-weight: 500; vertical-align: top; }
+
+    .hourly-forecast-card { grid-area: hourly; }
+    .hourly-forecast-card h3 { margin: 0 0 15px 0; }
+    .hourly-forecast-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; }
+    .hour-item { text-align: center; flex-shrink: 0; min-width: 60px; }
+    .hour-item .time { font-size: 0.85rem; font-weight: 500; }
+    .hour-item .icon { font-size: 1.5rem; margin: 8px 0; color: var(--primary-hover); }
+    .hour-item .temp { font-size: 1.1rem; font-weight: 600; }
+
+    .daily-forecast-card { grid-area: daily; }
+    .daily-forecast-card h3 { margin: 0 0 15px 0; }
+    .daily-forecast-container { display: flex; flex-direction: column; gap: 10px; }
+    .day-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; }
+    .day-item .day-name { font-weight: 500; flex-basis: 30%; }
+    .day-item .day-icon { font-size: 1.3rem; color: var(--primary-hover); }
+    .day-item .day-chance { color: #3498db; font-weight: 500; }
+    .day-item .day-temp { font-weight: 600; }
+    .day-item .day-temp .low { color: #777; font-weight: 400; }
+
+    .weather-details-card { grid-area: details; }
+    .weather-details-card h3 { margin: 0 0 15px 0; }
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .detail-item { font-size: 0.9rem; }
+    .detail-item .label { color: #555; margin-bottom: 3px; }
+    .detail-item .value { font-weight: 600; }
+    .detail-item .value i { color: #f39c12; margin-right: 5px; }
+    
+    .air-quality-card { grid-area: aqi; }
+    .air-quality-card h3 { margin: 0 0 15px 0; }
+    .air-quality-content { display: flex; align-items: center; gap: 20px; }
+    .aqi-value { text-align: center; }
+    .aqi-value .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .aqi-value .level { font-size: 0.9rem; font-weight: 500; }
+    .aqi-components { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; flex-grow: 1; }
+    .aqi-components li { display: flex; justify-content: space-between; padding: 3px 0; }
+    .aqi-components span:last-child { font-weight: 600; }
+    
+    .aqi-level-1 { color: #27ae60; } /* Good */
+    .aqi-level-2 { color: #f1c40f; } /* Fair */
+    .aqi-level-3 { color: #e67e22; } /* Moderate */
+    .aqi-level-4 { color: #e74c3c; } /* Poor */
+    .aqi-level-5 { color: #9b59b6; } /* Very Poor */
+
+    @media (max-width: 900px) {
+        .weather-grid {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+                "current current"
+                "hourly hourly"
+                "daily daily"
+                "details aqi";
+        }
+    }
+     @media (max-width: 600px) {
+        .weather-grid {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "current"
+                "hourly"
+                "daily"
+                "details"
+                "aqi";
+        }
+    }
+
+    /* ############################################################# */
+    /* ####### NEW: ATTRACTIVE DISEASE RESULT STYLES START HERE ###### */
+    /* ############################################################# */
+
+    .result-box {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px dashed #ddd;
+        border-radius: 8px;
+        min-height: 50px;
+        text-align: left;
+    }
+
+    #disease-result {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    .report-section {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        border-left: 5px solid;
+    }
+
+    .report-section h3 {
+        margin: 0 0 15px 0;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .report-section h3 i {
+        font-size: 1.5rem;
+    }
+
+    .report-section ul {
+        list-style: none;
+        padding-left: 5px;
+    }
+
+    .report-section ul li {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    .report-section ul li::before {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        content: '\f058'; /* Check circle */
+        position: absolute;
+        left: 0;
+        top: 4px;
+        color: var(--primary-color);
+    }
+
+    /* Custom styles for each section */
+    .report-disease { border-color: #e74c3c; } /* Red for disease */
+    .report-disease h3 { color: #e74c3c; }
+    .report-disease ul li::before { content: '\f05a'; color: #e74c3c; } /* Info circle */
+
+    .report-healthy { border-color: #27ae60; } /* Green for healthy */
+    .report-healthy h3 { color: #27ae60; }
+    .report-healthy ul li::before { content: '\f058'; color: #27ae60; } /* Check circle */
+
+    .report-soil { border-color: #8D6E63; } /* Brown for soil */
+    .report-soil h3 { color: #8D6E63; }
+    .report-soil p { margin: 5px 0; }
+
+    .report-water { border-color: #3498db; } /* Blue for water */
+    .report-water h3 { color: #3498db; }
+
+    .report-fertilizer { border-color: #f39c12; } /* Orange for fertilizer */
+    .report-fertilizer h3 { color: #f39c12; }
+
+    .report-pest { border-color: #9b59b6; } /* Purple for pests */
+    .report-pest h3 { color: #9b59b6; }
+
+    .report-spacing { border-color: #34495e; } /* Dark blue for spacing */
+    .report-spacing h3 { color: #34495e; }
+
+
+    /* ############################################################# */
+    /* ######## ATTRACTIVE DISEASE RESULT STYLES END HERE ######## */
+    /* ############################################################# */
+
+    /* Background Overlay Styles */
+    #login::before, #disease::before, #weather::before, #prices::before, #planner::before, #buysell::before, #about::before, #news::before, #loan::before, #tutorials::before, #community::before, #edit-profile::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(241, 245, 249, 0.8); /* Lighter overlay */
+        z-index: 1;
+    }
+
+    .box, .login-page-container, #buysell-choice-wrapper, .about-wrapper, .news-grid, .tutorials-grid, #vegetable-info-details {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Background Images */
+    #about { background-image: url('https://images.unsplash.com/photo-1596019285084-7a3897a2253a?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');}
+    #news { background-image: url('https://i.pinimg.com/736x/ea/40/7a/ea407a7b30b2ea41950ba7e8fb5c0978.jpg');}
+    #disease { background-image: url('https://i.pinimg.com/1200x/60/bd/fc/60bdfc7c58455210f379fcdbc350a583.jpg'); }
+    #weather { background-image: url('https://i.pinimg.com/1200x/61/7e/1e/617e1e21d1a19ef2e68b3ade28230731.jpg'); }
+    #prices { background-image: url('https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); }
+    #planner { background-image: url('https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); }
+    #buysell { background-image: url('https://i.pinimg.com/1200x/b3/e9/5d/b3e95dc21cbb6d5d0e77e796dfe0fedd.jpg'); }
+    #loan { background-image: url('https://www.vecteezy.com/photo/2883744-hand-holding-growing-tree-on-coins-with-stock-graph-over-green-background'); }
+    #tutorials { background-image: url('https://images.pexels.com/photos/265076/pexels-photo-265076.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); }
+    #community { background-image: url('https://images.pexels.com/photos/6646917/pexels-photo-6646917.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');}
+    #edit-profile { background-image: url('https://i.pinimg.com/564x/24/22/a1/2422a168a25a17a027376a911a3b1f5d.jpg');}
+
+
+    .box {
+        flex-grow: 0; flex-shrink: 1; background-color: var(--white-bg); border-radius: 16px;
+        padding: 30px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); border-top: 5px solid var(--primary-color);
+    }
+    .box h2 {
+        font-size: 1.5rem; margin: 0 0 25px 0; color: var(--text-dark);
+        border-bottom: 1px solid #eee; padding-bottom: 15px;
+        display: flex; align-items: center; gap: 0;
+    }
+    .box h2 i {
+        font-size: 1.5rem; color: var(--primary-color); background-color: rgba(22, 160, 133, 0.1);
+        padding: 10px; border-radius: 50%; margin-right: 15px; transition: transform 0.3s ease;
+        width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .box:hover h2 i { transform: rotate(-10deg) scale(1.1); }
+
+.coming-soon-placeholder {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px dashed #ced4da;
+    color: #495057;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.coming-soon-placeholder i {
+    font-size: 48px;
+    color: #28a745; /* A nice green color */
+    margin-bottom: 20px;
+}
+
+.coming-soon-placeholder h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.coming-soon-placeholder p {
+    font-size: 16px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+    #dashboard.container { padding: 0; margin: 0; width: 100%; max-width: none; height: 100%; position: relative; overflow: hidden; }
+    .slider-wrapper { display: flex; height: 100%; width: 500%; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); }
+    .slide { width: 20%; height: 100%; background-color: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; padding: 2rem; box-sizing: border-box; cursor: pointer; position: relative; overflow: hidden; }
+    .slide::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)); z-index: 2; }
+    .slide-content { position: relative; z-index: 3; opacity: 0; transform: translateY(20px); animation: fadeIn 1s 0.5s ease-out forwards; }
+    .slide i { font-size: 4rem; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .slide h2 { font-size: 2.5rem; font-weight: 700; margin: 0; border: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .slide p { font-size: 1.2rem; margin-top: 0.5rem; max-width: 500px; }
+    .slider-nav { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 3; }
+    .slider-nav-dot { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); cursor: pointer; transition: background-color 0.3s; }
+    .slider-nav-dot.active { background-color: white; }
+    .slide-background-gif {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%; object-fit: cover; z-index: 1;
+    }
+
+    #about.container {
+        align-items: center;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    .about-wrapper {
+        max-width: 900px; width: 100%; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 255, 250, 0.9));
+        padding: 50px 50px 0 50px; /* Remove bottom padding */
+        border-radius: 20px; border-top: 5px solid var(--primary-color);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12); animation: slideInFromTop 0.8s ease-out forwards;
+        backdrop-filter: blur(10px);
+    }
+    .about-wrapper h2 {
+        text-align: center; font-size: 2.2rem; margin-bottom: 25px; color: var(--text-dark);
+        display: flex; justify-content: center; align-items: center; gap: 15px; border: none;
+    }
+    .about-wrapper p { line-height: 1.8; color: #444; text-align: justify; font-size: 1.05rem; }
+    .stats-counter {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        text-align: center; margin: 40px 0; padding: 20px;
+    }
+    .stat {
+        background: rgba(255, 255, 255, 0.7); padding: 25px 15px; border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-bottom: 3px solid var(--primary-color);
+    }
+    .stat:hover { transform: translateY(-10px); box-shadow: 0 12px 25px rgba(22, 160, 133, 0.2); }
+    .stat i { font-size: 2rem; color: var(--primary-color); margin-bottom: 10px; }
+    .stat h3 { margin: 0; font-size: 2.8rem; color: var(--primary-hover); font-weight: 700; }
+    .stat p { margin: 5px 0 0 0; color: var(--text-dark); font-weight: 500; font-size: 1rem; }
+    .team-section { margin-top: 40px; }
+    .team-section h2 {
+        text-align: center; font-size: 2rem; border-bottom: 3px solid var(--primary-color);
+        color: var(--text-dark); display: inline-block; padding-bottom: 10px;
+        margin-bottom: 40px; font-weight: 600;
+    }
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; }
+    .team-card {
+        position: relative; background: #fff; border-radius: 15px; text-align: center;
+        padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;
+    }
+    .team-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .team-card img {
+        width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+        border: 5px solid var(--primary-color); transition: transform 0.4s ease; margin-bottom: 15px;
+    }
+    .team-card:hover img { transform: scale(1.1) rotate(5deg); }
+    .team-card h4 { margin: 15px 0 5px 0; font-size: 1.25rem; }
+    .team-card p { margin: 0; color: #777; font-style: italic; }
+    .team-card-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #28a746c0;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; transform: translateY(100%); transition: all 0.4s ease-in-out;
+    }
+    .team-card:hover .team-card-overlay { opacity: 1; transform: translateY(0); }
+    .portfolio-btn {
+        padding: 10px 25px; background-color: var(--white-bg); color: var(--primary-hover);
+        font-weight: 600; text-decoration: none; border-radius: 50px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); transition: transform 0.3s ease;
+    }
+    .portfolio-btn:hover { transform: scale(1.1); }
+
+    .happy-users-section {
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 1px solid #eee;
+        text-align: center;
+    }
+    .happy-users-section h2 {
+        text-align: center;
+        font-size: 2rem;
+        border-bottom: 3px solid var(--primary-color);
+        color: var(--text-dark);
+        display: inline-block;
+        padding-bottom: 10px;
+        margin-bottom: 40px;
+        font-weight: 600;
+    }
+    .happy-users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+    .user-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-align: center;
+    }
+    .user-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .user-card img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-color);
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .user-card img:hover {
+        transform: scale(1.05);
+    }
+    .user-card .testimonial-quote {
+        font-style: italic;
+        color: #555;
+        margin-bottom: 15px;
+        position: relative;
+        padding: 0 10px;
+    }
+    .user-card .testimonial-quote::before {
+        content: '“';
+        position: absolute;
+        top: -10px;
+        left: 0;
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        opacity: 0.5;
+    }
+    .user-card .user-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    /* --- NEW ATTRACTIVE FOOTER STYLES --- */
+    .about-footer {
+        width: 100%;
+        background-color: transparent; /* Make it transparent to blend with wrapper */
+        animation: fadeInUp 1s ease-out;
+        margin-top: 40px; /* Space from content above */
+        padding-top: 30px; /* Space from content above */
+        border-top: 1px solid #eee; /* Separator line */
+    }
+    .footer-main {
+        padding: 0 0 40px 0; /* Adjust padding */
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    .footer-col {
+        flex: 1;
+        min-width: 220px;
+    }
+    .footer-col h4 {
+        color: var(--text-dark);
+        margin: 0 0 15px 0;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    .footer-col h4::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary-color);
+    }
+    /* Branding Column */
+    .footer-branding .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .footer-branding .logo-icon {
+        font-size: 2.5rem;
+        color: white;
+        background: var(--primary-color);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .footer-branding h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--text-dark);
+    }
+    .footer-branding p {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.6;
+    }
+    .footer-socials a {
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+        margin-right: 15px;
+        transition: color 0.3s ease;
+    }
+    .footer-socials a:hover {
+        color: var(--primary-color);
+    }
+.footer-motivation {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e9e9e9; /* Light separator line */
+}
+.footer-motivation h4 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.footer-motivation h4 i {
+    color: var(--primary-color);
+    margin-right: 8px;
+}
+.footer-motivation p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+    /* Quick Links Column */
+    .footer-links ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .footer-links li a {
+        color: #555;
+        text-decoration: none;
+        display: block;
+        padding: 5px 0;
+        transition: color 0.3s, transform 0.3s;
+    }
+    .footer-links li a:hover {
+        color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    /* Contact Info Column */
+    .footer-contact p {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 0 0 15px 0;
+        color: #555;
+    }
+    .footer-contact i {
+        color: var(--primary-color);
+        margin-top: 4px;
+    }
+
+    .footer-copyright {
+        background-color: var(--secondary-color);
+        color: var(--light-bg);
+        text-align: center;
+        padding: 15px;
+        font-size: 0.9rem;
+        margin: 0 -50px; /* Stretch to edges of wrapper padding */
+        border-radius: 0 0 20px 20px; /* Match wrapper radius */
+    }
+
+    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; width: 100%; padding: 10px; }
+    .news-card { background: var(--white-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: inherit; }
+    .news-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+    .news-card-img { width: 100%; height: 200px; object-fit: cover; }
+    .news-card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+    .news-card-content h3 { font-size: 1.2rem; margin: 0 0 10px 0; color: var(--text-dark); }
+    .news-card-content p { font-size: 0.9rem; color: #555; line-height: 1.6; margin: 0 0 15px 0; flex-grow: 1; }
+    .news-card-footer { font-size: 0.8rem; color: #888; border-top: 1px solid #eee; padding-top: 10px; }
+    #news-loader { color: white; font-size: 1.5rem; text-align: center; z-index: 5; position: relative; }
+
+
+    /* --- IMAGE MODAL STYLES --- */
+    #image-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 11000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+    #image-modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        animation: zoomIn 0.4s ease-out;
+    }
+    #image-modal-content img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    #image-modal-close {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        width: 40px;
+        height: 40px;
+        background-color: white;
+        color: var(--text-dark);
+        font-size: 28px;
+        font-weight: bold;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        line-height: 1;
+        transition: transform 0.2s ease;
+    }
+    #image-modal-close:hover {
+        transform: scale(1.1) rotate(90deg);
+    }
+
+
+    #login.container {
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-page-container {
+        background-color: var(--white-bg);
+        border-radius: 10px;
+        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        position: relative;
+        overflow: hidden;
+        width: 768px;
+        max-width: 100%;
+        min-height: 520px;
+        animation: fadeInUp 0.8s ease-out;
+    }
+    .form-container {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        transition: all 0.6s ease-in-out;
+    }
+    .sign-in-container { left: 0; width: 50%; z-index: 2; }
+    .sign-up-container { left: 0; width: 50%; z-index: 1; opacity: 0; }
+
+    .login-page-container form {
+        background-color: var(--white-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 50px;
+        height: 100%;
+        text-align: center;
+    }
+    .login-page-container h1 { font-weight: bold; margin: 0 0 15px 0; color: var(--text-dark); }
+    .login-page-container p { font-size: 14px; font-weight: 100; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
+    .login-page-container input {
+        background-color: #eee;
+        border: none;
+        padding: 12px 15px;
+        margin: 8px 0;
+        width: 100%;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+    .login-page-container button {
+        border-radius: 20px;
+        border: 1px solid var(--primary-color);
+        background-color: var(--primary-color);
+        color: #FFFFFF;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 12px 45px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: transform 80ms ease-in, background-color 0.3s;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    .login-page-container button:hover {
+        background-color: var(--primary-hover);
+    }
+    .login-page-container button:active { transform: scale(0.95); }
+    .login-page-container button:focus { outline: none; }
+    .login-page-container button.ghost {
+        background-color: transparent;
+        border-color: #FFFFFF;
+    }
+
+    .overlay-container {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        transition: transform 0.6s ease-in-out;
+        z-index: 100;
+    }
+    .overlay {
+        background: var(--primary-color);
+        background: linear-gradient(to right, var(--primary-hover), var(--primary-color));
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: 0 0;
+        color: #FFFFFF;
+        position: relative;
+        left: -100%;
+        height: 100%;
+        width: 200%;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+    }
+    .overlay-panel {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 40px;
+        text-align: center;
+        top: 0;
+        height: 100%;
+        width: 50%;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+    }
+    .overlay-left { transform: translateX(-20%); }
+    .overlay-right { right: 0; transform: translateX(0); }
+
+    .login-page-container.right-panel-active .sign-in-container { transform: translateX(100%); }
+    .login-page-container.right-panel-active .overlay-container { transform: translateX(-100%); }
+    .login-page-container.right-panel-active .sign-up-container {
+        transform: translateX(100%);
+        opacity: 1;
+        z-index: 5;
+        animation: show 0.6s;
+    }
+    @keyframes show {
+        0%, 49.99% { opacity: 0; z-index: 1; }
+        50%, 100% { opacity: 1; z-index: 5; }
+    }
+    .login-page-container.right-panel-active .overlay { transform: translateX(50%); }
+    .login-page-container.right-panel-active .overlay-left { transform: translateX(0); }
+    .login-page-container.right-panel-active .overlay-right { transform: translateX(20%); }
+
+
+    #buysell-choice-wrapper { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 40px; width: 100%; max-width: 800px; }
+    .choice-card { background-color: var(--white-bg); border-radius: 20px; padding: 40px 30px; width: 280px; text-align: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09); transition: transform 0.3s ease, box-shadow 0.3s ease; border: 2px solid transparent; opacity: 0; animation: fadeInUp 0.5s ease-out forwards; }
+    .choice-card:nth-child(2) { animation-delay: 0.2s; }
+    .choice-card:hover { transform: translateY(-12px); box-shadow: 0 12px 25px rgba(22, 160, 133, 0.2); border-color: var(--primary-color); }
+    .choice-card:active { transform: translateY(-5px); }
+    .choice-card i { font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; }
+    .choice-card h3 { font-size: 1.8rem; color: var(--text-dark); margin: 0 0 10px 0; }
+    .choice-card p { font-size: 1rem; color: #555555; margin: 0; line-height: 1.5; }
+
+    /* --- NEW TUTORIALS SECTION STYLES --- */
+    .tutorials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .tutorial-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .tutorial-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+    .tutorial-card-thumbnail {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .tutorial-card-thumbnail img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        pointer-events: none;
+    }
+    .tutorial-card-content {
+        padding: 15px;
+    }
+    .tutorial-card-content h4 {
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+    .tutorial-card-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    #tutorials-output {
+        width: 100%;
+    }
+
+    @media (max-width: 920px) { /* Adjust breakpoint for footer */
+        .footer-main {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .footer-col {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .footer-col h4::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* --- NEW --- Mobile styles for vegetable info */
+        #vegetable-info-details {
+            flex-direction: column;
+        }
+    }
+/* Add this CSS for better link styles in the footer */
+.footer-contact a, .footer-motivation a {
+    color: inherit; /* Keeps the text color the same */
+    text-decoration: none; /* Removes the underline */
+    transition: color 0.3s;
+}
+.footer-contact a:hover, .footer-motivation a:hover {
+    color: var(--primary-color); /* Changes color on hover */
+    text-decoration: underline; /* Adds underline on hover */
+}
+
+    /* ############################################################# */
+    /* ############# MOBILE VIEW STYLES (768px and below) ############ */
+    /* ############################################################# */
+    @media (max-width: 768px) {
+        body {
+            flex-direction: column;
+            overflow: auto; /* Allow body to scroll */
+            height: 100%;
+        }
+
+        /* --- MOBILE HEADER & NAVIGATION --- */
+        header {
+            position: fixed; /* Keep header at top */
+            left: 0;
+            width: 100%;
+            animation: none;
+            box-sizing: border-box;
+            z-index: 1002; /* Above content */
+        }
+
+        .hamburger-menu {
+            display: block; /* Show hamburger on mobile */
+        }
+
+        .sidebar {
+            /* Transform sidebar into a full-screen mobile menu */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--secondary-color);
+            z-index: 1001; /* Below header but above content */
+            transform: translateX(-100%); /* Hide it off-screen */
+            transition: transform 0.4s ease-in-out;
+            flex-direction: column;
+            justify-content: center; /* Center links vertically */
+            align-items: center;
+            padding-top: 0;
+            animation: none;
+            overflow-y: auto;
+        }
+
+        body.mobile-nav-open .sidebar {
+            transform: translateX(0); /* Show the menu */
+        }
+
+        .sidebar a {
+            padding: 20px 25px;
+            font-size: 1.5rem; /* Bigger font for mobile */
+            width: 80%;
+            justify-content: center;
+            text-align: center;
+        }
+        .sidebar a i { margin-right: 15px; }
+        .sidebar a span { display: inline; } /* Ensure text is visible */
+
+        #sidebar-weather-widget { display: none !important; }
+
+        /* --- MOBILE CONTENT & LAYOUT --- */
+        .content {
+            margin-left: 0;
+            padding-top: 70px; /* Space for the fixed header */
+            width: 100%;
+            height: auto; /* Allow content to define its own height */
+            min-height: calc(100vh - 70px);
+            overflow-y: visible;
+        }
+
+        .container {
+            width: 100%;
+            min-height: calc(100vh - 70px); /* Fill the screen height */
+            padding: 20px;
+            box-sizing: border-box;
+            background-attachment: scroll; /* Better for mobile */
+            justify-content: flex-start; /* Align content to the top */
+            align-items: flex-start;
+        }
+
+        /* HIDE DESKTOP DASHBOARD on mobile */
+        #dashboard {
+            display: none !important;
+        }
+
+        .box, .about-wrapper {
+            padding: 25px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- MOBILE SPECIFIC SECTION STYLING --- */
+        .stats-counter, .happy-users-grid, .team-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-wrapper {
+            padding: 25px 25px 0 25px;
+            border-radius: 0;
+            min-height: calc(100vh - 70px);
+        }
+        .about-footer {
+            padding-top: 20px;
+        }
+        .footer-copyright {
+            margin: 0 -25px;
+            border-radius: 0;
+        }
+
+        #buysell.container {
+            justify-content: center;
+        }
+        .choice-card {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* --- MOBILE LOGIN PAGE --- */
+        #login.container {
+             padding: 0;
+             height: calc(100vh - 70px);
+             overflow-y: auto;
+        }
+        .login-page-container {
+             width: 100%;
+             min-height: calc(100vh - 70px);
+             height: 100%;
+             border-radius: 0;
+             box-shadow: none;
+             display: flex;
+             flex-direction: column;
+        }
+        .overlay-container { display: none; } /* Hide the side panel */
+
+        .form-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 200px; /* Ensure it has some height */
+            padding: 0 25px;
+            box-sizing: border-box;
+            opacity: 1;
+            z-index: 2;
+        }
+        .login-page-container form {
+             padding: 20px 20px;
+        }
+
+        .sign-in-container {
+            display: none; /* Controlled by JS */
+        }
+        .sign-up-container {
+            display: none; /* Controlled by JS */
+        }
+
+        .login-page-container .mobile-toggle-forms {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            z-index: 5;
+            position: relative;
+            background: #f7f7f7;
+            border-top: 1px solid #eee;
+        }
+        .login-page-container .mobile-toggle-forms button {
+            background-color: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* --- MOBILE CHATBOT --- */
+        .chatbot-container {
+            right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            border-radius: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 10000;
+        }
+        .show-chatbot .chatbot-container {
+            transform: translateX(0%);
+        }
+        .chatbot-container .chatbox {
+            height: calc(100% - 150px);
+        }
+        .chatbot-toggler {
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001; /* Above the chatbot itself */
+        }
+    }
+</style>
+</head>
+<body>
+    <button class="chatbot-toggler">
+        <span class="fa-solid fa-comments"></span>
+        <span class="fa-solid fa-xmark"></span>
+    </button>
+    <div class="chatbot-container">
+        <ul class="chatbox">
+            <li class="chat incoming">
+                <span class="fa-solid fa-robot"></span>
+                <p>Hi there 👋<br>How can I help you today?</p>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea placeholder="Enter a message..." required></textarea>
+            <span id="send-btn" class="fa-solid fa-paper-plane"></span>
+        </div>
+    </div>
+
+    <div id="loading-overlay"><div class="spinner"></div></div>
+
+    <div class="sidebar">
+        <div id="sidebar-weather-widget">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span id="weather-temp">--°C</span>
+            <span id="weather-location">Loading...</span>
+        </div>
+
+        <a href="#" onclick="App.showSection('dashboard', true)" class="nav-dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="#" onclick="App.showSection('about', true)"><i class="fas fa-info-circle"></i> <span>About</span></a>
+        <a href="#" onclick="App.showSection('disease', true)"><i class="fas fa-leaf"></i> <span>Crop Guide</span></a>
+        <a href="#" onclick="App.showSection('weather', true)"><i class="fas fa-cloud-sun-rain"></i> <span>Weather</span></a>
+        <a href="#" onclick="App.showSection('prices', true)"><i class="fas fa-tags"></i> <span>Prices</span></a>
+        <a href="#" onclick="App.showSection('planner', true)"><i class="fas fa-brain"></i> <span>AI Planner</span></a>
+        <a href="#" onclick="App.showSection('buysell', true)"><i class="fas fa-store"></i> <span>Buy/Sell</span></a>
+        <a href="#" onclick="App.showSection('news', true)"><i class="fas fa-newspaper"></i> <span>Agri News</span></a>
+        <a href="#" onclick="App.showSection('community', true)"><i class="fas fa-users"></i> <span>Community</span></a>
+        <a href="#" onclick="App.showSection('loan', true)"><i class="fas fa-hand-holding-usd"></i> <span>Agri Loan</span></a>
+
+        <a href="#" id="nav-login" onclick="App.showSection('login', true)"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
+        <a href="#" id="nav-logout" onclick="App.logoutUser()" style="display: none;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+    </div>
+
+    <header>
+        <h1><i class="fas fa-leaf"></i>AI Agri Assistant</h1>
+        <div class="header-right">
+             <div class="user-profile">
+                <img id="header-profile-pic" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Profile Icon">
+                <span id="username-display"></span>
+                <div class="profile-dropdown">
+                    <p>
+                        <span><strong>Email:</strong><br><span id="user-email-details"></span></span>
+                        <i class="fas fa-pencil-alt edit-profile-btn" onclick="event.stopPropagation(); App.showSection('edit-profile');"></i>
+                    </p>
+                    <a href="#" onclick="event.preventDefault(); App.logoutUser()">Logout</a>
+                </div>
+            </div>
+            <div class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="container" id="dashboard">
+             <div class="slider-wrapper">
+                 <div class="slide" onclick="App.showSection('weather')">
+                     <img src="https://i.gifer.com/Iqt.gif" class="slide-background-gif" alt="Weather animation">
+                     <div class="slide-content">
+                         <i class="fas fa-cloud-sun-rain"></i>
+                         <h2>Weather Forecast</h2>
+                         <p>Get real-time weather updates to plan your farming activities.</p>
+                     </div>
+                 </div>
+                 <div class="slide" onclick="App.showSection('disease')">
+                     <img src="https://s14.gifyu.com/images/bNLvJ.gif" class="slide-background-gif" alt="Crop inspection animation">
+                     <div class="slide-content">
+                         <i class="fas fa-leaf"></i>
+                         <h2>Crop Guide</h2>
+                         <p>Upload a leaf image to instantly detect diseases and get a full farming guide.</p>
+                     </div>
+                 </div>
+                 <div class="slide" onclick="App.showSection('planner')">
+                     <img src="https://s14.gifyu.com/images/bNLmY.gif" class="slide-background-gif" alt="Farming planner animation">
+                     <div class="slide-content">
+                         <i class="fas fa-brain"></i>
+                         <h2>AI Planner</h2>
+                         <p>Receive intelligent suggestions for crops based on your land and season.</p>
+                     </div>
+                 </div>
+                 <div class="slide" onclick="App.showSection('prices')">
+                     <img src="https://s14.gifyu.com/images/bNLIp.gif" class="slide-background-gif" alt="Market prices animation">
+                     <div class="slide-content">
+                         <i class="fas fa-tags"></i>
+                         <h2>Market Prices</h2>
+                         <p>Track the latest vegetable prices in your local market.</p>
+                     </div>
+                 </div>
+                 <div class="slide" onclick="App.showSection('buysell')">
+                     <img src="https://s14.gifyu.com/images/bNLuQ.gif" class="slide-background-gif" alt="Market animation">
+                     <div class="slide-content">
+                         <i class="fas fa-store"></i>
+                         <h2>Market</h2>
+                         <p>Directly buy & sell farm products.</p>
+                     </div>
+                 </div>
+             </div>
+             <div class="slider-nav"></div>
+        </div>
+
+        <div class="container" id="about">
+            <div class="about-wrapper">
+                <h2><i class="fas fa-info-circle"></i>About AI Agri Assistant</h2>
+                <p>AI Agri Assistant is a modern, AI-powered web application designed to be a comprehensive digital companion for farmers. Our mission is to empower the agricultural community by providing easy access to vital information, predictive tools, and a direct-to-market platform, all in one place. From weather forecasts to AI-driven crop disease detection, we leverage technology to help farmers make informed decisions, increase productivity, and improve their livelihoods.</p>
+                <div class="stats-counter">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <h3 id="users-counter">502</h3>
+                        <p>Happy Users</p>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-cogs"></i>
+                        <h3 id="features-counter">7+</h3>
+                        <p>Core Features</p>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-bullseye"></i>
+                        <h3 id="goals-counter">20+</h3>
+                        <p>States Reached</p>
+                    </div>
+                </div>
+                <div class="team-section">
+                    <center><h2>Meet the Development Team</h2></center>
+                    <div class="team-grid">
+                        <div class="team-card">
+                            <img src="https://i.pinimg.com/1200x/4f/33/80/4f33809fd4af15a7402f9f6c38562511.jpg" alt="Team Member 1">
+                            <h4>Lokesh</h4>
+                            <p>Full-Stack Developer & UI/UX Designer</p>
+                            <div class="team-card-overlay">
+                                <a href="http://lokeshloki.site" class="portfolio-btn" target="_blank" rel="noopener noreferrer">Portfolio</a>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <img src="https://i.pinimg.com/1200x/9d/57/6a/9d576ad8e77d4c85163cfab87697c877.jpg" alt="Team Member 2">
+                            <h4>Sarjan</h4>
+                            <p>Full-Stack Web Engineer</p>
+                            <div class="team-card-overlay">
+                                <a href="https://sarjan.site/" class="portfolio-btn" target="_blank" rel="noopener noreferrer">Portfolio</a>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <img src="https://i.pinimg.com/1200x/e2/13/5d/e2135d9d2bf74f9e7f0f6fced12a9d08.jpg" alt="Team Member 3">
+                            <h4>Nishanth</h4>
+                            <p>Database Administration (DBA)</p>
+                            <div class="team-card-overlay">
+                                <a href="https://www.nishanthk.site/" class="portfolio-btn" target="_blank" rel="noopener noreferrer">Portfolio</a>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <img src="https://i.pinimg.com/1200x/e8/1f/e6/e81fe6a30963e568b47d29a58648793a.jpg" alt="Team Member 4">
+                            <h4>Karthick kumar</h4>
+                            <p>Data Science & AI Engineer</p>
+                            <div class="team-card-overlay">
+                                <a href="https://karthick.site/" class="portfolio-btn" target="_blank" rel="noopener noreferrer">Portfolio</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="happy-users-section">
+                    <h2>Happy Users</h2>
+                    <div class="happy-users-grid">
+                        <div class="user-card">
+                            <img src="https://i.pinimg.com/736x/fa/6b/ef/fa6bef08c766459f152e98a284dcaf33.jpg" alt="User 1" onclick="App.openImageModal(this.src)">
+                            <p class="testimonial-quote">This app has revolutionized the way I manage my farm. The disease prediction is incredibly accurate!</p>
+                            <p class="user-name">- gopal</p>
+                        </div>
+                        <div class="user-card">
+                            <img src="https://i.pinimg.com/736x/df/27/6e/df276e04d094873b5fc75987e1f53bfb.jpg" alt="User 2" onclick="App.openImageModal(this.src)">
+                            <p class="testimonial-quote">The AI Planner gave me great suggestions for crop rotation. My yield has increased by 20% this season.</p>
+                            <p class="user-name">- Rajesh </p>
+                        </div>
+                        <div class="user-card">
+                            <img src="https://i.pinimg.com/736x/b5/97/4a/b5974adfc083e8885e4afbaae5aea6bf.jpg" alt="User 3" onclick="App.openImageModal(this.src)">
+                            <p class="testimonial-quote">Finally, a reliable source for market prices. I can now sell my produce at the best possible rate.</p>
+                            <p class="user-name">-sujan</p>
+                        </div>
+
+                    </div>
+                </div>
+                <footer class="about-footer">
+                    <div class="footer-main">
+                        <div class="footer-col footer-branding">
+                            <div class="logo-container">
+                                <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+                                <h3>Agro Assistant</h3>
+                            </div>
+                            <p>Empowering Agriculture with Technology. Your one-stop solution for modern farming needs.</p>
+                            <div class="footer-socials">
+                                 <a href="https://www.facebook.com/share/1Bk2SHkSmx/" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                 <a href="https://x.com/LOKESHM935732?t=tE1v7qO_P9rNvTZFMYmlLA&s=09" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                 <a href="https://www.instagram.com/lovely_loki._65/" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                 <a href="https://www.linkedin.com/in/lokesh-m-265b832b3/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                        <div class="footer-col footer-links">
+                            <h4>Quick Links</h4>
+                            <ul>
+                                <li><a href="#" onclick="App.showSection('weather', true)">Weather</a></li>
+                                <li><a href="#" onclick="App.showSection('disease', true)">Crop Disease</a></li>
+                                <li><a href="#" onclick="App.showSection('planner', true)">AI Planner</a></li>
+                                <li><a href="#" onclick="App.showSection('prices', true)">Market Prices</a></li>
+                                <li><a href="#" onclick="App.showSection('loan', true)">Agri Loan</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col footer-contact">
+                            <h4>Contact Info</h4>
+                           <p><i class="fas fa-phone"></i> <a href="tel:+919655865777">+91 9655865777</a></p>
+                            <p><i class="fas fa-envelope"></i> <a href="mailto:LOKESH152005@GMAIL.COM">LOKESH152005@GMAIL.COM</a></p>
+                            <div class="footer-motivation">
+                            <h4><i class="fas fa-hands-helping"></i> Our Mentors</h4>
+                           <p><a href="https://thangavelp-svhec-principal.vercel.app/">Dr.P.Thangavelu (Principal)</a></p>
+                           <p><a href="https://senthilkumar-svhec-hod.vercel.app/"> Dr.R.Senthil Kumar (HOD)</a></p>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer-copyright">
+                        © 2025 Agro Assistant | Developed with ❤️
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <div class="container" id="edit-profile">
+            <div class="box">
+                <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+
+                <div class="profile-pic-uploader">
+                    <img id="profile-pic-preview" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Profile Picture">
+                    <label for="profile-pic-input">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="profile-pic-input" accept="image/*">
+                </div>
+
+                <form id="edit-profile-form">
+                    <label for="profile-name">Name</label>
+                    <input type="text" id="profile-name" placeholder="Enter your name" required>
+
+                    <label for="profile-email">Email</label>
+                    <input type="email" id="profile-email" disabled>
+<label for="profile-current-password">Current Password (Required to change password)</label>
+<input type="password" id="profile-current-password" placeholder="Enter your current password">
+
+<label for="profile-new-password">New Password (leave blank to keep current password)</label>
+<input type="password" id="profile-new-password" placeholder="Enter new password">
+                    
+
+                    <div id="profile-update-status" class="result-box" style="display:none;"></div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="back-btn" onclick="App.showSection('about')">Back</button>
+                        <button type="submit">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="container" id="news">
+            <div id="news-loader" style="display: none;"><div class="spinner"></div><br>Fetching latest news...</div>
+            <div class="news-grid" id="news-grid"></div>
+        </div>
+
+        <div class="container" id="login">
+            <div class="login-page-container" id="login-container">
+                <div class="form-container sign-up-container">
+                    <form action="#" onsubmit="return false;">
+                        <h1>Create Account</h1>
+                        <input type="text" id="register-name" placeholder="Name" required/>
+                        <input type="email" id="register-email" placeholder="Email" required/>
+                        <input type="password" id="register-password" placeholder="Password" required/>
+                        <input type="password" id="register-confirm-password" placeholder="Confirm Password" required/>
+                        <button type="button" onclick="App.registerUser()">Sign Up</button>
+                        <div id="register-status" class="result-box" style="display:none; background: transparent; border: none; padding: 10px 0 0 0;"></div>
+                    </form>
+                </div>
+                <div class="form-container sign-in-container">
+                    <form action="#" onsubmit="return false;">
+                        <h1>Sign In</h1>
+                        <input type="email" id="login-email" placeholder="Email" />
+                        <input type="password" id="login-password" placeholder="Password" />
+                        <button type="button" onclick="App.loginUser()">Sign In</button>
+                        <div id="login-status" class="result-box" style="display:none; background: transparent; border: none; padding: 10px 0 0 0;"></div>
+                    </form>
+                </div>
+                <div class="overlay-container">
+                    <div class="overlay">
+                        <div class="overlay-panel overlay-left">
+                            <h1>Welcome Back!</h1>
+                            <p>To keep connected with us please login with your personal info</p>
+                            <button class="ghost" id="signIn">Sign In</button>
+                        </div>
+                        <div class="overlay-panel overlay-right">
+                            <h1>Hello, Farmer!</h1>
+                            <p>Enter your personal details and start your journey with us</p>
+                            <button class="ghost" id="signUp">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mobile-toggle-forms" style="display: none;">
+                     <span id="mobile-toggle-text">Don't have an account?</span>
+                     <button id="mobile-toggle-btn">Sign Up</button>
+                 </div>
+            </div>
+        </div>
+
+
+        <div class="container" id="disease">
+            <div class="box">
+                <h2><i class="fas fa-seedling"></i> Complete Crop Guide</h2>
+                 <form id="disease-form" enctype="multipart/form-data">
+                     <div class="file-input-wrapper" style="width: 80%;">
+                         <input type="file" name="leaf" id="leafImage" accept="image/*" required onchange="App.handleFileSelect(event)">
+                         <span class="file-input-label"><i class="fas fa-cloud-upload-alt"></i>Click to Upload Leaf Image</span>
+                     </div>
+                     <div class="file-name" id="leaf-file-name"></div>
+                     <button type="submit">🔍 Analyze & Get Guide</button>
+                 </form>
+                <div id="disease-result" class="result-box"></div>
+            </div>
+        </div>
+
+        <div class="container" id="weather">
+            <div class="box">
+                <h2><i class="fas fa-cloud-sun-rain"></i> Weather Forecast</h2>
+                
+                <div class="weather-search-form">
+                    <input type="text" id="city-search-input" placeholder="Enter a city name...">
+                    <button onclick="App.getWeatherByCity()"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="form-divider">OR</div>
+                
+                <button onclick="App.getWeatherByLocation()">📍 Use My Location</button>
+
+                <div id="weather-output">
+                    </div>
+            </div>
+        </div>
+        <div class="container" id="prices">
+            <div class="box">
+                <h2><i class="fas fa-tags"></i> Vegetable Price Tracker</h2>
+                <label for="veg-name">🥬 Vegetable Name:</label>
+                <input type="text" id="veg-name" placeholder="e.g. Tomato" />
+                <label for="veg-location">📍 Market/City:</label>
+                <input type="text" id="veg-location" placeholder="e.g. Coimbatore" />
+                <button onclick="App.getPrices()">📦 Get Price & Info</button>
+                <div id="price-list" class="result-box"></div>
+            </div>
+            <div id="vegetable-info-details">
+                <div class="veg-image-container">
+                    <img id="veg-info-image" src="" alt="Vegetable Image">
+                </div>
+                <div class="veg-details-container">
+                    <h3 id="veg-info-name"></h3>
+                    <div id="veg-info-content">
+                        </div>
+                </div>
+            </div>
+        </div>
+       <div class="container" id="planner">
+            <div class="box">
+                <h2><i class="fas fa-brain"></i> AI Planner</h2>
+
+                <label for="crop">🌾 Crop Name:</label>
+                <input type="text" id="crop" placeholder="e.g., Tomato, Rice" />
+
+                <label for="area">📏 Land Area (in acres):</label>
+                <input type="number" id="area" placeholder="e.g., 5" />
+
+                <label for="location">📍 Your Location:</label>
+                <input type="text" id="location" placeholder="e.g., Chennai, Madurai" />
+
+                <button onclick="App.getPlan()">💡 Get Perfect Plan</button>
+
+                <div id="planner-output" class="result-box"></div>
+            </div>
+        </div>
+
+        <div class="container" id="buysell" style="flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 50px;">
+            <div id="buysell-choice-wrapper" style="display: flex;">
+                <div id="btn-seller-choice" class="choice-card" role="button" tabindex="0">
+                    <i class="fas fa-seedling"></i>
+                    <h3>I am a Seller</h3>
+                    <p>List your fresh farm products for buyers to see.</p>
+                </div>
+                <div id="btn-buyer-choice" class="choice-card" role="button" tabindex="0">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>I am a Buyer</h3>
+                    <p>Browse and buy products directly from farmers.</p>
+                </div>
+            </div>
+            <div id="seller-form-container" class="box" style="display: none; width: 100%; max-width: 500px; margin-top: 30px;">
+                <h2><i class="fas fa-seedling"></i> Sell Your Product</h2>
+                <label for="seller-name">👤 Seller Name:</label>
+                <input type="text" id="seller-name" placeholder="Enter your name">
+                <label for="seller-item-name">📦 Product Name:</label>
+                <input type="text" id="seller-item-name" placeholder="e.g. Tomato, Onion">
+                <label for="seller-location">📍 Location:</label>
+                <input type="text" id="seller-location" placeholder="e.g. Coimbatore, Salem">
+                <label for="seller-category">🌾 Category:</label>
+                <select id="seller-category">
+                    <option value="">-- Select a Category --</option>
+                    <option value="vegetables">Vegetable</option>
+                    <option value="fruits">Fruit</option>
+                    <option value="grains">Grains</option>
+                    <option value="other">Other</option>
+                </select>
+                <label for="seller-item-image">🖼️ Product Image:</label>
+                <input type="file" id="seller-item-image" accept="image/*">
+                <label for="seller-price">💰 Price (per kg):</label>
+                <input type="number" id="seller-price" placeholder="e.g. 25">
+                <button onclick="App.submitSellerItem()">📤 Submit Item</button>
+                <div id="seller-submit-status" class="result-box"></div>
+                <button onclick="App.showBuysellChoice()" style="margin-top: 10px; background-color: #7f8c8d;">← Go Back</button>
+            </div>
+        </div>
+
+
+        <div class="container" id="community">
+             <div class="box">
+                 <h2><i class="fas fa-users"></i> Community Forum</h2>
+                 <div class="coming-soon-placeholder">
+                     <i class="fas fa-comments"></i>
+                     <h2>Feature Coming Soon!</h2>
+                     <p>We're building a community space for farmers to connect, ask questions, and share knowledge. Stay tuned!</p>
+                 </div>
+             </div>
+        </div>
+
+        <div class="container" id="loan">
+            <div class="box">
+                <div id="loan-step-1">
+                    <h2><i class="fas fa-hand-holding-usd"></i>Agri Loan: Coming Soon!</h2>
+                    <form id="loan-form-initial">
+                        <label for="pan-card">PAN Card</label>
+                        <div class="file-input-wrapper" style="width: 80%;">
+                            <input type="file" name="pan-card" id="pan-card" accept="image/*,application/pdf" required />
+                            <span class="file-input-label"><i class="fas fa-id-card"></i>Click to Upload PAN Card</span>
+                        </div>
+                        <div class="file-name" id="pan-file-name"></div>
+                        <label for="passbook">Last 6 Months Bank Statement</label>
+                        <div class="file-input-wrapper"  style="width: 80%;">
+                            <input type="file" name="passbook" id="passbook" accept="image/*,application/pdf" required />
+                            <span class="file-input-label"><i class="fas fa-book"></i>Click to Upload Bank Statement</span>
+                        </div>
+                        <div class="file-name" id="passbook-file-name"></div>
+                        <button type="submit">Agri Loan: Coming Soon!</button>
+                    </form>
+                    <div id="loan-status" class="result-box" style="display:none;"></div>
+                </div>
+                <div id="loan-step-2" style="display:none;">
+                    <h2><i class="fas fa-check-circle"></i> Loan Eligibility</h2>
+                    <div id="loan-approval-section" class="loan-suggestion"></div>
+                    <button id="get-loan-btn">Get Loan</button>
+                </div>
+                <div id="loan-step-3" style="display:none;">
+                    <h2><i class="fas fa-user-check"></i> Final Application</h2>
+                    <form id="loan-form-final" action="https://api.web3forms.com/submit" method="POST">
+                        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+                        <input type="hidden" name="subject" value="New Agri Loan Application">
+                        <input type="hidden" name="from_name" value="Agro Assistant">
+                        <label for="farmer-photo">Your Photo</label>
+                        <div class="file-input-wrapper"  style="width: 80%;">
+                            <input type="file" name="farmer_photo" id="farmer-photo" accept="image/*" required>
+                            <span class="file-input-label"><i class="fas fa-camera"></i>Upload Your Photo</span>
+                        </div>
+                        <div class="file-name" id="photo-file-name"></div>
+                        <label for="address">Full Address</label>
+                        <textarea name="address" id="address" required placeholder="Enter your full address"></textarea>
+                        <label for="bank-details">Bank Account Details (for loan deposit)</label>
+                        <textarea name="bank_details" id="bank-details" required placeholder="Bank Name, Account Number, IFSC Code"></textarea>
+                        <div class="terms-box">
+                            <p><strong>Terms and Conditions:</strong></p>
+                            <ul>
+                                <li>The loan amount is subject to final verification by our team.</li>
+                                <li>The interest rate for the loan is fixed at <strong>1% per annum</strong>.</li>
+                                <li>Repayment must be made in equal monthly installments over the agreed tenure.</li>
+                                <li>Failure to repay on time may result in penalties as per the agreement.</li>
+                                <li>All information provided must be accurate and truthful.</li>
+                            </ul>
+                        </div>
+                        <div class="terms-check">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">I agree to the terms and conditions.</label>
+                        </div>
+                        <button type="submit">Submit Final Application</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-modal-overlay">
+        <div id="image-modal-content">
+            <span id="image-modal-close" onclick="App.closeImageModal()">×</span>
+            <img id="full-image" src="" alt="Full-size user image">
+        </div>
+    </div>
+
+    <div id="news-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="App.closeNewsModal()">×</span>
+            <iframe id="news-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div id="final-popup" class="popup-overlay"><div class="popup-content"><i class="fas fa-check-circle"></i><p>Our agent will get you back soon</p><button class="popup-close-btn" onclick="App.closeFinalPopup()">Close</button></div></div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <script>
+        const App = {
+            API_BASE_URL: 'http://127.0.0.1:5000',
+            services: { auth: null, db: null, storage: null },
+            newsLoaded: false,
+            tutorialsLoaded: false,
+            isNewUser: false,
+            profilePicFile: null, // To store the new profile picture file
+            slider: {
+                interval: null,
+                currentIndex: 0,
+                wrapper: null,
+                nav: null,
+                slidesCount: 5
+            },
+            chatbot: {
+                toggler: null,
+                sendBtn: null,
+                input: null,
+                chatbox: null
+            },
+
+            init: function() {
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.initServices();
+                    this.bindEvents();
+                    this.initChatbot();
+                    this.services.auth.onAuthStateChanged(this.handleAuthStateChange.bind(this));
+                });
+            },
+
+            initServices: function() {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyCXK0KHqLhKVAAm5xr0ASbFKJM5IwVLeTY",
+                    authDomain: "agri--sps-project.firebaseapp.com",
+                    projectId: "agri--sps-project",
+                    storageBucket: "agri--sps-project.appspot.com",
+                    messagingSenderId: "762110077628",
+                    appId: "1:762110077628:web:9d219b9d67bbecf270beb9",
+                    measurementId: "G-CZ1QZ6437H"
+                };
+                firebase.initializeApp(firebaseConfig);
+                this.services.auth = firebase.auth();
+                this.services.db = firebase.firestore();
+                this.services.storage = firebase.storage();
+            },
+
+            bindEvents: function() {
+                // Desktop Login Panel Toggle
+                const signUpButton = document.getElementById('signUp');
+                const signInButton = document.getElementById('signIn');
+                const container = document.getElementById('login-container');
+
+                if(signUpButton && signInButton && container) {
+                    signUpButton.addEventListener('click', () => container.classList.add('right-panel-active'));
+                    signInButton.addEventListener('click', () => container.classList.remove('right-panel-active'));
+                }
+
+                // Mobile Login/Signup Toggle
+                const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+                if(mobileToggleBtn) {
+                    mobileToggleBtn.addEventListener('click', this.toggleMobileForms.bind(this));
+                }
+
+                // Hamburger Menu Toggle
+                const hamburger = document.querySelector('.hamburger-menu');
+                if (hamburger) {
+                    hamburger.addEventListener('click', () => {
+                        document.body.classList.toggle('mobile-nav-open');
+                    });
+                }
+
+                // Profile Dropdown
+                const userProfile = document.querySelector('.user-profile');
+                if (userProfile) {
+                    userProfile.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userProfile.classList.toggle('active');
+                    });
+                }
+                document.addEventListener('click', (e) => {
+                    const activeProfile = document.querySelector('.user-profile.active');
+                    if (activeProfile && !activeProfile.contains(e.target)) {
+                        activeProfile.classList.remove('active');
+                    }
+                });
+
+                // Form event listeners
+                document.getElementById('disease-form').addEventListener('submit', (e) => { e.preventDefault(); this.predictDisease(e.currentTarget); });
+                document.getElementById('edit-profile-form').addEventListener('submit', (e) => { e.preventDefault(); this.handleProfileUpdate(); });
+                document.getElementById('profile-pic-input').addEventListener('change', (e) => { this.previewProfilePic(e); });
+
+
+                document.getElementById('btn-seller-choice').addEventListener('click', () => this.showSellerForm());
+                document.getElementById('btn-buyer-choice').addEventListener('click', () => this.redirectToBuyerPage());
+
+                document.getElementById('loan-form-initial').addEventListener('submit', (e) => { e.preventDefault(); this.handleInitialLoanSubmit(); });
+                document.getElementById('get-loan-btn').addEventListener('click', () => this.showFinalLoanForm());
+                document.getElementById('loan-form-final').addEventListener('submit', (e) => { e.preventDefault(); this.handleFinalLoanSubmit(e.target); });
+
+                document.getElementById('pan-card').addEventListener('change', (e) => {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : '';
+                    document.getElementById('pan-file-name').textContent = fileName;
+                });
+                document.getElementById('passbook').addEventListener('change', (e) => {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : '';
+                    document.getElementById('passbook-file-name').textContent = fileName;
+                });
+                document.getElementById('farmer-photo').addEventListener('change', (e) => {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : '';
+                    document.getElementById('photo-file-name').textContent = fileName;
+                });
+            },
+
+            handleFileSelect: function(event) {
+                const fileName = event.target.files[0] ? event.target.files[0].name : '';
+                document.getElementById('leaf-file-name').textContent = fileName;
+            },
+
+            showSection: function(sectionId, fromMobileNav = false) {
+                const sections = ['dashboard', 'about', 'disease', 'weather', 'prices', 'planner', 'login', 'buysell', 'news', 'loan', 'tutorials', 'community', 'edit-profile'];
+                clearInterval(this.slider.interval);
+
+                sections.forEach(id => {
+                    const container = document.getElementById(id);
+                    if (container) container.style.display = 'none'; // Hide all sections first
+                });
+
+                // Show the selected section
+                const sectionToShow = document.getElementById(sectionId);
+                if (sectionToShow) {
+                    sectionToShow.style.display = 'flex';
+                }
+
+                if (sectionId === 'about') {
+                    this.triggerCounters();
+                } else if (sectionId === 'dashboard') {
+                    this.initDashboardSlider();
+                } else if (sectionId === 'login') {
+                    this.setupMobileLoginView(); // Setup mobile login view correctly
+                    document.getElementById('login-container')?.classList.remove('right-panel-active');
+                } else if (sectionId === 'buysell') {
+                    this.showBuysellChoice();
+                } else if (sectionId === 'edit-profile') {
+                    this.populateProfileForm();
+                } else if (sectionId === 'news' && !this.newsLoaded) {
+                    this.showLoadingOverlay(true);
+                    this.getNews().finally(() => this.showLoadingOverlay(false));
+                } else if (sectionId === 'tutorials' && !this.tutorialsLoaded) {
+                    this.getTutorials('latest farming techniques'); // Initial search
+                    this.tutorialsLoaded = true; // Prevent re-loading on every click
+                } else if (sectionId === 'loan') {
+                    document.getElementById('loan-step-1').style.display = 'block';
+                    document.getElementById('loan-step-2').style.display = 'none';
+                    document.getElementById('loan-step-3').style.display = 'none';
+                    document.getElementById('loan-status').style.display = 'none';
+                }
+
+                // If a link in the mobile nav was clicked, close the nav
+                if (fromMobileNav) {
+                    document.body.classList.remove('mobile-nav-open');
+                }
+                document.querySelector('.user-profile')?.classList.remove('active');
+            },
+
+            initChatbot: function() {
+                this.chatbot.toggler = document.querySelector(".chatbot-toggler");
+                this.chatbot.sendBtn = document.getElementById("send-btn");
+                this.chatbot.input = document.querySelector(".chat-input textarea");
+                this.chatbot.chatbox = document.querySelector(".chatbox");
+
+                this.chatbot.toggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
+                this.chatbot.sendBtn.addEventListener("click", () => this.handleChat());
+                this.chatbot.input.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        this.handleChat();
+                    }
+                });
+            },
+
+            createChatLi: function(message, className) {
+                const chatLi = document.createElement("li");
+                chatLi.classList.add("chat", className);
+                let chatContent = className === "outgoing"
+                    ? `<p>${message}</p>`
+                    : `<span class="fa-solid fa-robot"></span><p>${message}</p>`;
+                chatLi.innerHTML = chatContent;
+                return chatLi;
+            },
+
+            generateResponse: async function(userMessage) {
+                const thinkingLi = this.createChatLi("Thinking...", "incoming");
+                this.chatbot.chatbox.appendChild(thinkingLi);
+                this.chatbot.chatbox.scrollTo(0, this.chatbot.chatbox.scrollHeight);
+
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/ask-agro-assistant`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ question: userMessage })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error || "Something went wrong.");
+                    }
+
+                    const data = await response.json();
+                    thinkingLi.querySelector("p").textContent = data.answer;
+
+                } catch (error) {
+                    thinkingLi.querySelector("p").textContent = "Oops! Something went wrong. Please try again.";
+                    thinkingLi.querySelector("p").style.color = "#d9534f";
+                } finally {
+                    this.chatbot.chatbox.scrollTo(0, this.chatbot.chatbox.scrollHeight);
+                }
+            },
+
+            handleChat: function() {
+                const userMessage = this.chatbot.input.value.trim();
+                if(!userMessage) return;
+
+                this.chatbot.input.value = "";
+                this.chatbot.chatbox.appendChild(this.createChatLi(userMessage, "outgoing"));
+                this.chatbot.chatbox.scrollTo(0, this.chatbot.chatbox.scrollHeight);
+
+                setTimeout(() => {
+                    this.generateResponse(userMessage);
+                }, 600);
+            },
+
+            handleAuthStateChange: function(user) {
+                const navItems = document.querySelectorAll('.sidebar a:not(#nav-login):not(#nav-logout)');
+                const loginLink = document.getElementById('nav-login');
+                const logoutLink = document.getElementById('nav-logout');
+                const userProfileDiv = document.querySelector('.user-profile');
+                const header = document.querySelector('header');
+                const content = document.querySelector('.content');
+                const weatherWidget = document.getElementById('sidebar-weather-widget');
+                const isMobile = window.innerWidth <= 768;
+
+                if (user) {
+                    loginLink.style.display = 'none';
+                    logoutLink.style.display = 'flex';
+                    userProfileDiv.style.display = 'flex';
+                    weatherWidget.style.display = isMobile ? 'none' : 'flex';
+                    navItems.forEach(item => item.style.display = 'flex');
+                    header.style.display = 'flex';
+                    content.style.display = 'block';
+
+                    this.updateHeaderProfile(user);
+
+                    // Hide dashboard link on mobile
+                    const dashboardLink = document.querySelector('.nav-dashboard');
+                    if(dashboardLink) dashboardLink.style.display = isMobile ? 'none' : 'flex';
+
+                    // Determine which section to show
+                    if (isMobile) {
+                        this.showSection('about'); // Show 'about' on mobile
+                         document.body.classList.add('mobile-nav-open');
+                    } else {
+                        this.showSection('dashboard'); // Show 'dashboard' on desktop
+                    }
+
+                    this.fetchSidebarWeather();
+                } else { // User is logged out
+                    loginLink.style.display = 'flex';
+                    logoutLink.style.display = 'none';
+                    userProfileDiv.style.display = 'none';
+                    weatherWidget.style.display = 'none';
+                    navItems.forEach(item => item.style.display = 'none');
+                    this.showSection('login');
+                    this.newsLoaded = false;
+                }
+            },
+
+            updateHeaderProfile: function(user) {
+                const username = user.displayName || user.email.split('@')[0];
+                const photoURL = user.photoURL || 'https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg';
+                document.getElementById('username-display').textContent = username;
+                document.getElementById('user-email-details').textContent = user.email;
+                document.getElementById('header-profile-pic').src = photoURL;
+            },
+
+            registerUser: function() {
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                const statusDiv = document.getElementById('register-status');
+                statusDiv.style.display = 'block';
+
+                if (!name || !email || !password || !confirmPassword) {
+                    statusDiv.innerHTML = `<p style="color:red;">Please fill in all fields.</p>`;
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    statusDiv.innerHTML = `<p style="color:red;">Passwords do not match.</p>`;
+                    return;
+                }
+                statusDiv.innerHTML = `<p style="color:blue;">Registering...</p>`;
+                this.services.auth.createUserWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        return userCredential.user.updateProfile({
+                            displayName: name
+                        }).then(() => {
+                            statusDiv.innerHTML = `<p style="color:green;">Registration successful! Please login.</p>`;
+                            this.isNewUser = true;
+                            this.updateUserCountInDB();
+                            if(window.innerWidth > 768) {
+                               setTimeout(() => document.getElementById('signIn').click(), 1500);
+                            } else {
+                                 setTimeout(() => this.toggleMobileForms(), 1500);
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        statusDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                    });
+            },
+
+            loginUser: function() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const statusDiv = document.getElementById('login-status');
+                 statusDiv.style.display = 'block';
+
+                if (!email || !password) {
+                    statusDiv.innerHTML = `<p style="color:red;">Please enter both email and password.</p>`;
+                    return;
+                }
+                statusDiv.innerHTML = `<p style="color:blue;">Logging in...</p>`;
+                this.services.auth.signInWithEmailAndPassword(email, password)
+                    .catch(error => {
+                        statusDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                    });
+            },
+
+            logoutUser: function() {
+                this.services.auth.signOut().catch(error => console.error('Sign out error', error));
+            },
+
+            populateProfileForm: function() {
+                const user = this.services.auth.currentUser;
+                if (!user) return;
+
+                const photoURL = user.photoURL || 'https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg';
+                document.getElementById('profile-pic-preview').src = photoURL;
+                document.getElementById('profile-name').value = user.displayName || '';
+                document.getElementById('profile-email').value = user.email || '';
+                document.getElementById('profile-new-password').value = '';
+                document.getElementById('profile-update-status').style.display = 'none';
+                this.profilePicFile = null;
+            },
+
+            previewProfilePic: function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.profilePicFile = file; // Store the file
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('profile-pic-preview').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            handleProfileUpdate: async function() {
+            const user = this.services.auth.currentUser;
+            if (!user) return;
+
+            const statusDiv = document.getElementById('profile-update-status');
+            this.showLoadingOverlay(true);
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<p style="color:blue;">Updating profile...</p>';
+
+            try {
+                const newName = document.getElementById('profile-name').value;
+                const newPassword = document.getElementById('profile-new-password').value;
+                const currentPassword = document.getElementById('profile-current-password').value;
+
+                // --- PASSWORD UPDATE LOGIC STARTS HERE ---
+                if (newPassword) {
+                    if (!currentPassword) {
+                        throw new Error("Please enter your current password to set a new one.");
+                    }
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                    await user.reauthenticateWithCredential(credential);
+                    await user.updatePassword(newPassword);
+                }
+                // --- PASSWORD UPDATE LOGIC ENDS HERE ---
+
+
+                let photoURL = user.photoURL;
+                if (this.profilePicFile) {
+                    const formData = new FormData();
+                    formData.append('profile_image', this.profilePicFile);
+
+                    const response = await fetch(`${this.API_BASE_URL}/upload-profile-image`, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Image upload failed.');
+                    }
+                    const result = await response.json();
+                    photoURL = result.secure_url;
+                }
+
+                await user.updateProfile({
+                    displayName: newName,
+                    photoURL: photoURL
+                });
+
+                this.updateHeaderProfile(this.services.auth.currentUser);
+                statusDiv.innerHTML = '<p style="color:green;">Profile updated successfully!</p>';
+                this.profilePicFile = null;
+                document.getElementById('profile-current-password').value = '';
+                document.getElementById('profile-new-password').value = '';
+
+            } catch (error) {
+                console.error("Profile update error:", error);
+                statusDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            } finally {
+                this.showLoadingOverlay(false);
+            }
+        },
+
+            handleInitialLoanSubmit: async function() {
+                const loanStatusDiv = document.getElementById('loan-status');
+                const panFile = document.getElementById('pan-card').files[0];
+                const passbookFile = document.getElementById('passbook').files[0];
+
+                if (!panFile || !passbookFile) {
+                    loanStatusDiv.style.display = 'block';
+                    loanStatusDiv.innerHTML = `<p style="color:red;">Please upload both documents.</p>`;
+                    return;
+                }
+
+                this.showLoadingOverlay(true);
+                loanStatusDiv.style.display = 'block';
+                loanStatusDiv.innerHTML = `<p style="color:blue;">Analyzing your documents... Please wait.</p>`;
+
+                setTimeout(() => {
+                    const isSuccess = Math.random() > 0.3; 
+                    if (isSuccess) {
+                        const suggestedAmount = Math.floor(Math.random() * (500000 - 50000 + 1)) + 50000;
+                        document.getElementById('loan-approval-section').innerHTML = `
+                            <h3><i class="fas fa-check-circle"></i> Eligibility Successful!</h3>
+                            <p>Based on your documents, you are eligible for a loan amount up to:</p>
+                            <h3>₹${suggestedAmount.toLocaleString('en-IN')}</h3>
+                        `;
+                        document.getElementById('loan-step-1').style.display = 'none';
+                        document.getElementById('loan-step-2').style.display = 'block';
+                    } else {
+                        loanStatusDiv.innerHTML = `<p style="color:red;"><b>Loan Application Rejected.</b> The provided documents do not meet our eligibility criteria.</p>`;
+                    }
+                    this.showLoadingOverlay(false);
+                }, 3000);
+            },
+
+            showFinalLoanForm: function() {
+                document.getElementById('loan-step-2').style.display = 'none';
+                document.getElementById('loan-step-3').style.display = 'block';
+            },
+
+            handleFinalLoanSubmit: async function(form) {
+                this.showLoadingOverlay(true);
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    this.showLoadingOverlay(false);
+                    document.getElementById('final-popup').style.display = 'flex';
+                    form.reset();
+                    this.showSection('loan');
+                } else {
+                    this.showLoadingOverlay(false);
+                    const result = await response.json();
+                    alert(result.message || "An error occurred. Please try again.");
+                }
+            },
+
+            closeFinalPopup: function() {
+                document.getElementById('final-popup').style.display = 'none';
+            },
+
+            animateCounter: function(element, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const currentNumber = Math.floor(progress * (end - start) + start);
+                    element.innerHTML = currentNumber.toLocaleString();
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        element.innerHTML = end.toLocaleString() + (element.id === 'features-counter' || element.id === 'goals-counter' ? '+' : '');
+                    }
+                };
+                window.requestAnimationFrame(step);
+            },
+
+            triggerCounters: async function() {
+                const userCountFromDB = 56; 
+                let finalUserCount = userCountFromDB;
+                if (this.isNewUser) {
+                    finalUserCount++;
+                    this.isNewUser = false; 
+                }
+                this.animateCounter(document.getElementById('users-counter'), 1, finalUserCount, 2000);
+                this.animateCounter(document.getElementById('features-counter'), 0, 7, 1500);
+                this.animateCounter(document.getElementById('goals-counter'), 0, 20, 1800);
+            },
+
+            updateUserCountInDB: function() {
+                console.log("Simulating: Updating user count in the database.");
+            },
+getNews: async function() {
+    const newsGrid = document.getElementById('news-grid');
+    newsGrid.innerHTML = '';
+
+    try {
+        const response = await fetch(`${this.API_BASE_URL}/agri-news`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.articles && data.articles.length > 0) {
+            data.articles.forEach(article => {
+                newsGrid.innerHTML += `
+                    <a href="#" onclick="event.preventDefault(); App.openNewsModal('${article.url}')" class="news-card">
+                        <img src="${article.urlToImage || 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&q=80&w=1915&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}" alt="News Image" class="news-card-img">
+                        <div class="news-card-content">
+                            <h3>${article.title}</h3>
+                            <p>${article.description || "No description available."}</p>
+                            <div class="news-card-footer">
+                                <strong>Agro Assistant</strong> - ${new Date(article.publishedAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            });
+            this.newsLoaded = true;
+        } else {
+            newsGrid.innerHTML = '<p style="color: white; text-align: center; width: 100%; z-index: 5;">No agricultural news found.</p>';
+        }
+    } catch (e) {
+        console.error("Failed to fetch news:", e);
+        newsGrid.innerHTML = `<p style='color: #ffcccc; text-align:center; width: 100%; z-index: 5;'>Error fetching news: ${e.message}.</p>`;
+    }
+},
+
+            fetchSidebarWeather: function() {
+                const widget = document.getElementById('sidebar-weather-widget');
+                const iconEl = widget.querySelector('i');
+                const tempEl = document.getElementById('weather-temp');
+                const locationEl = document.getElementById('weather-location');
+                if (!("geolocation" in navigator)) {
+                    locationEl.textContent = 'Geolocation N/A';
+                    iconEl.className = 'fas fa-map-marker-slash';
+                    tempEl.style.display = 'none';
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    try {
+                        const { latitude, longitude } = position.coords;
+                        const response = await fetch(`${this.API_BASE_URL}/weather?lat=${latitude}&lon=${longitude}`);
+                        if (!response.ok) throw new Error('Weather service failed');
+                        const data = await response.json();
+                        tempEl.innerHTML = `${Math.round(data.current.temp)}°C`;
+                        locationEl.textContent = data.city_name;
+                        iconEl.className = `fas ${this.getWeatherIconClass(data.current.weather[0])}`;
+                    } catch (error) {
+                        locationEl.textContent = 'Weather unavailable';
+                        iconEl.className = 'fas fa-exclamation-circle';
+                        tempEl.style.display = 'none';
+                    }
+                }, () => {
+                    locationEl.textContent = 'Enable Location';
+                    iconEl.className = 'fas fa-map-marker-slash';
+                    tempEl.style.display = 'none';
+                });
+            },
+
+            predictDisease: async function(form) {
+                const resultDiv = document.getElementById('disease-result');
+                const formData = new FormData(form);
+                this.showLoadingOverlay(true);
+
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/predict`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error || 'Prediction failed.');
+                    }
+
+                    const data = await response.json();
+                    const fullReportText = data.prediction_text;
+
+                    if (fullReportText) {
+                        this.displayAttractiveReport(fullReportText);
+                    } else {
+                        throw new Error('The AI did not return a valid report.');
+                    }
+
+                } catch (e) {
+                    resultDiv.innerHTML = `<p style="color:red;">Error: ${e.message}</p>`;
+                } finally {
+                    this.showLoadingOverlay(false);
+                }
+            },
+
+            displayAttractiveReport: function(reportText) {
+                const resultDiv = document.getElementById('disease-result');
+                resultDiv.innerHTML = ''; // Clear previous results
+
+                const sections = {
+                    '### DISEASE ANALYSIS ###': {
+                        icon: 'fa-stethoscope',
+                        title: 'Disease Analysis',
+                        className: 'report-disease'
+                    },
+                    '### HEALTHY LEAF TIPS ###': {
+                        icon: 'fa-heart-pulse',
+                        title: 'Healthy Plant Care Tips',
+                        className: 'report-healthy'
+                    },
+                    '### SOIL SUITABILITY ###': {
+                        icon: 'fa-mountain',
+                        title: 'Soil Suitability',
+                        className: 'report-soil'
+                    },
+                    '### WATERING GUIDE ###': {
+                        icon: 'fa-tint',
+                        title: 'Watering Guide',
+                        className: 'report-water'
+                    },
+                    '### FERTILIZER RECOMMENDATION ###': {
+                        icon: 'fa-leaf',
+                        title: 'Fertilizer Recommendation',
+                        className: 'report-fertilizer'
+                    },
+                    '### PEST CONTROL ###': {
+                        icon: 'fa-bug',
+                        title: 'Pest Control',
+                        className: 'report-pest'
+                    },
+                    '### PLANTING GUIDE ###': {
+                        icon: 'fa-ruler-combined',
+                        title: 'Planting & Spacing Guide',
+                        className: 'report-spacing'
+                    }
+                };
+
+                let currentSectionKey = null;
+                const contentMap = {};
+
+                reportText.split('\n').forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (sections[trimmedLine]) {
+                        currentSectionKey = trimmedLine;
+                        contentMap[currentSectionKey] = '';
+                    } else if (currentSectionKey && trimmedLine) {
+                        contentMap[currentSectionKey] += trimmedLine + '\n';
+                    }
+                });
+
+                Object.keys(sections).forEach(key => {
+                    if (contentMap[key]) {
+                        const sectionData = sections[key];
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.className = `report-section ${sectionData.className}`;
+
+                        let contentHTML = `<h3><i class="fas ${sectionData.icon}"></i>${sectionData.title}</h3>`;
+
+                        const lines = contentMap[key].trim().split('\n');
+                        if (lines.some(line => line.match(/^(\d+\.|-|\*)\s/))) {
+                            contentHTML += '<ul>';
+                            lines.forEach(line => {
+                                contentHTML += `<li>${line.replace(/^(\d+\.|-|\*)\s/, '')}</li>`;
+                            });
+                            contentHTML += '</ul>';
+                        } else {
+                            lines.forEach(line => {
+                                contentHTML += `<p>${line}</p>`;
+                            });
+                        }
+
+                        sectionDiv.innerHTML = contentHTML;
+                        resultDiv.appendChild(sectionDiv);
+                    }
+                });
+            },
+
+            getWeatherByLocation: function() {
+                if ("geolocation" in navigator) {
+                    this.showLoadingOverlay(true);
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        this.fetchWeather({ lat: latitude, lon: longitude });
+                    }, () => {
+                        document.getElementById('weather-output').innerHTML = "<p style='color:red;'>Could not get your location. Please enable location services.</p>";
+                        this.showLoadingOverlay(false);
+                    });
+                } else {
+                    document.getElementById('weather-output').innerHTML = "<p style='color:red;'>Geolocation is not supported by your browser.</p>";
+                }
+            },
+
+            getWeatherByCity: function() {
+                const city = document.getElementById('city-search-input').value;
+                if (!city) {
+                    document.getElementById('weather-output').innerHTML = "<p style='color:red;'>Please enter a city name.</p>";
+                    return;
+                }
+                this.showLoadingOverlay(true);
+                this.fetchWeather({ city: city });
+            },
+
+            fetchWeather: async function(params) {
+                const outputDiv = document.getElementById('weather-output');
+                outputDiv.style.display = 'none';
+                let queryString = '';
+                if (params.lat && params.lon) {
+                    queryString = `lat=${params.lat}&lon=${params.lon}`;
+                } else if (params.city) {
+                    queryString = `city=${encodeURIComponent(params.city)}`;
+                } else {
+                    this.showLoadingOverlay(false);
+                    return;
+                }
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/weather?${queryString}`);
+                    if (!response.ok) {
+                         const errorData = await response.json();
+                         throw new Error(errorData.error || 'Could not fetch weather data.');
+                    }
+                    const data = await response.json();
+                    this.displayFullWeatherData(data);
+                } catch (e) {
+                    outputDiv.innerHTML = `<p style="color:red; text-align: center; padding: 20px;">Error: ${e.message}</p>`;
+                    outputDiv.style.display = 'block';
+                } finally {
+                    this.showLoadingOverlay(false);
+                }
+            },
+
+            getWeatherIconClass: function(weatherData) {
+                if (!weatherData) return 'fa-question-circle';
+                const id = weatherData.id;
+                if (id >= 200 && id <= 232) return 'fa-bolt'; // Thunderstorm
+                if (id >= 300 && id <= 321) return 'fa-cloud-rain'; // Drizzle
+                if (id >= 500 && id <= 531) return 'fa-cloud-showers-heavy'; // Rain
+                if (id >= 600 && id <= 622) return 'fa-snowflake'; // Snow
+                if (id >= 701 && id <= 781) return 'fa-smog'; // Atmosphere (mist, smoke, etc.)
+                if (id === 800) return 'fa-sun'; // Clear
+                if (id === 801) return 'fa-cloud-sun'; // Few clouds
+                if (id >= 802 && id <= 804) return 'fa-cloud'; // Scattered/Broken/Overcast clouds
+                return 'fa-cloud-sun'; // Default
+            },
+
+            displayFullWeatherData: function(data) {
+                const outputDiv = document.getElementById('weather-output');
+                const sunrise = new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
+                const sunset = new Date(data.current.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
+                let hourlyHTML = '';
+                data.hourly.slice(0, 24).forEach(hour => {
+                    const time = new Date(hour.dt * 1000).toLocaleTimeString([], { hour: 'numeric', hour12: true});
+                    hourlyHTML += `<div class="hour-item"><div class="time">${time}</div><i class="fas ${this.getWeatherIconClass(hour.weather[0])} icon"></i><div class="temp">${Math.round(hour.temp)}°</div></div>`;
+                });
+                let dailyHTML = '';
+                data.daily.slice(1, 8).forEach(day => {
+                    const dayName = new Date(day.dt * 1000).toLocaleDateString([], { weekday: 'long' });
+                    const pop = Math.round(day.pop * 100);
+                    dailyHTML += `<div class="day-item"><div class="day-name">${dayName}</div><i class="fas ${this.getWeatherIconClass(day.weather[0])} day-icon"></i><div class="day-chance">${pop > 0 ? `${pop}%` : ''}</div><div class="day-temp">${Math.round(day.temp.max)}° / <span class="low">${Math.round(day.temp.min)}°</span></div></div>`;
+                });
+                const aqi = data.air_quality.main.aqi;
+                const aqiLevels = { 1: 'Good', 2: 'Fair', 3: 'Moderate', 4: 'Poor', 5: 'Very Poor' };
+                const fullHTML = `
+                    <div class="weather-grid">
+                        <div class="weather-card current-weather-card">
+                            <div class="current-weather-info">
+                                <p class="location">${data.city_name}</p>
+                                <p class="condition">${data.current.weather[0].description}</p>
+                                <div class="current-weather-feels-like">Feels like ${Math.round(data.current.feels_like)}° &bull; H: ${Math.round(data.daily[0].temp.max)}° L: ${Math.round(data.daily[0].temp.min)}°</div>
+                            </div>
+                            <div class="current-weather-temp">${Math.round(data.current.temp)}<sup>°C</sup></div>
+                        </div>
+
+                        <div class="weather-card hourly-forecast-card">
+                            <h3>Hourly Forecast</h3>
+                            <div class="hourly-forecast-container">${hourlyHTML}</div>
+                        </div>
+
+                        <div class="weather-card daily-forecast-card">
+                            <h3>7-Day Forecast</h3>
+                            <div class="daily-forecast-container">${dailyHTML}</div>
+                        </div>
+
+                        <div class="weather-card weather-details-card">
+                            <h3>Current Details</h3>
+                            <div class="details-grid">
+                                <div class="detail-item"><div class="label">Humidity</div><div class="value">${data.current.humidity}%</div></div>
+                                <div class="detail-item"><div class="label">Wind Speed</div><div class="value">${data.current.wind_speed} m/s</div></div>
+                                <div class="detail-item"><div class="label">Pressure</div><div class="value">${data.current.pressure} hPa</div></div>
+                                <div class="detail-item"><div class="label">UV Index</div><div class="value">${data.current.uvi}</div></div>
+                                <div class="detail-item"><div class="label">Visibility</div><div class="value">${data.current.visibility / 1000} km</div></div>
+                                <div class="detail-item"><div class="label">Sunrise/Sunset</div><div class="value"><i class="fas fa-sun"></i> ${sunrise} / ${sunset}</div></div>
+                            </div>
+                        </div>
+
+                        <div class="weather-card air-quality-card">
+                            <h3>Air Quality</h3>
+                            <div class="air-quality-content">
+                                <div class="aqi-value">
+                                    <div class="value aqi-level-${aqi}">${aqi}</div>
+                                    <div class="level aqi-level-${aqi}">${aqiLevels[aqi]}</div>
+                                </div>
+                                <ul class="aqi-components">
+                                    <li><span>PM2.5</span> <span>${data.air_quality.components.pm2_5.toFixed(1)} µg/m³</span></li>
+                                    <li><span>PM10</span> <span>${data.air_quality.components.pm10.toFixed(1)} µg/m³</span></li>
+                                    <li><span>O₃</span> <span>${data.air_quality.components.o3.toFixed(1)} µg/m³</span></li>
+                                    <li><span>SO₂</span> <span>${data.air_quality.components.so2.toFixed(1)} µg/m³</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                outputDiv.innerHTML = fullHTML;
+                outputDiv.style.display = 'block';
+            },
+
+            // --- MODIFIED --- This is the updated function
+            getPrices: async function() {
+                const veg = document.getElementById('veg-name').value;
+                const location = document.getElementById('veg-location').value;
+                const priceList = document.getElementById('price-list');
+                const vegInfoContainer = document.getElementById('vegetable-info-details');
+
+                // Hide previous info and clear price list
+                vegInfoContainer.style.display = 'none';
+                priceList.innerHTML = '';
+
+                if (!veg || !location) {
+                    priceList.innerHTML = "<p style='color: red;'>Please enter both Vegetable Name and Market/City.</p>";
+                    return;
+                }
+
+                this.showLoadingOverlay(true);
+
+                try {
+                    // --- Task 1: Fetch Price ---
+                    const priceResponse = await fetch(`${this.API_BASE_URL}/prices?vegetable=${encodeURIComponent(veg)}&location=${encodeURIComponent(location)}`);
+                    if (!priceResponse.ok) {
+                        const errorData = await priceResponse.json();
+                        throw new Error(errorData.error || 'Failed to fetch prices.');
+                    }
+                    const priceData = await priceResponse.json();
+                    if (priceData.prices && priceData.prices.length > 0) {
+                        const priceInfo = priceData.prices[0];
+                        priceList.innerHTML = `<div style="text-align: left; font-size: 1.1rem;"><strong>${priceInfo.name}</strong> in <strong>${priceInfo.location}</strong><p style="font-size: 1.8rem; font-weight: 600; margin: 10px 0; color: var(--primary-hover);">${priceInfo.price}</p></div>`;
+                    } else {
+                        priceList.innerHTML = `<p>No price data found for <strong>${veg}</strong> in <strong>${location}</strong>.</p>`;
+                    }
+
+                    // --- Task 2: Fetch Vegetable Info ---
+                    const infoResponse = await fetch(`${this.API_BASE_URL}/vegetable-info?name=${encodeURIComponent(veg)}`);
+                    if (infoResponse.ok) {
+                        const infoData = await infoResponse.json();
+                        this.displayVegetableInfo(infoData);
+                    } else {
+                        console.warn('Could not fetch vegetable details, but price is shown.');
+                    }
+
+                } catch (error) {
+                    priceList.innerHTML = `<p style='color: red;'>Error: ${error.message}.</p>`;
+                } finally {
+                    this.showLoadingOverlay(false);
+                }
+            },
+
+            // --- NEW --- This is the new function to display the vegetable info card
+            displayVegetableInfo: function(data) {
+                const container = document.getElementById('vegetable-info-details');
+                document.getElementById('veg-info-image').src = data.image_url || 'https://i.pinimg.com/564x/12/37/c4/1237c44565d7595d52f3e8b0f24c322b.jpg';
+                document.getElementById('veg-info-name').textContent = data.name;
+
+                let contentHTML = `
+                    <div class="veg-info-section">
+                        <h4><i class="fas fa-history"></i> History & Origin</h4>
+                        <p>${data.history}</p>
+                    </div>
+                    <div class="veg-info-section">
+                        <h4><i class="fas fa-seedling"></i> Cultivation Guide</h4>
+                        <p><strong>Soil:</strong> ${data.cultivation.soil}</p>
+                        <p><strong>Water:</strong> ${data.cultivation.water}</p>
+                        <p><strong>Climate:</strong> ${data.cultivation.climate}</p>
+                    </div>
+                    <div class="veg-info-section">
+                        <h4><i class="fas fa-apple-alt"></i> Nutritional Facts (per 100g)</h4>
+                        <table class="nutrition-table">
+                            <tbody>
+                                ${data.nutrition.map(item => `<tr><td>${item.nutrient}</td><td>${item.value}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('veg-info-content').innerHTML = contentHTML;
+                container.style.display = 'flex';
+            },
+
+
+getPlan: async function() {
+    const outputDiv = document.getElementById('planner-output');
+    const crop = document.getElementById('crop').value;
+    const area = document.getElementById('area').value;
+    const location = document.getElementById('location').value; // Get the new location value
+
+    // Check for all new required fields
+    if (!crop || !area || !location) {
+        outputDiv.innerHTML = "<p style='color: red;'>Please fill in Crop, Area, and Your Location.</p>";
+        return;
+    }
+
+    this.showLoadingOverlay(true);
+
+    try {
+        const response = await fetch(`${this.API_BASE_URL}/planner?crop=${encodeURIComponent(crop)}&area=${encodeURIComponent(area)}&location=${encodeURIComponent(location)}`);
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to generate plan.');
+        }
+
+        const data = await response.json();
+
+        let htmlResult = `
+            <div style="text-align: left;">
+                <h3>${data.plan_summary.title}</h3>
+                <p><strong>Suitability:</strong> ${data.plan_summary.suitability}</p>
+                <hr>
+
+                <h4>💰 Cost & Profit Estimation</h4>
+                <p><strong>Total Estimated Cost:</strong> ${data.cost_and_profit_estimation.total_estimated_cost}</p>
+                <p><strong>Estimated Yield:</strong> ${data.cost_and_profit_estimation.estimated_yield}</p>
+                <p><strong>Potential Profit:</strong> <strong style="color: green;">${data.cost_and_profit_estimation.estimated_profit}</strong></p>
+
+                <strong>Cost Breakdown:</strong>
+                <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+                    ${data.cost_and_profit_estimation.cost_breakdown.map(item => `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 5px;">${item.item}</td>
+                            <td style="padding: 5px; text-align: right;">${item.cost}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <hr>
+
+                <h4>🗓️ Step-by-Step Guide (${data.step_by_step_guide.timeline_weeks})</h4>
+                <ul style="padding-left: 20px;">
+                    ${data.step_by_step_guide.steps.map(step => `
+                        <li style="margin-bottom: 10px;">
+                            <strong>${step.stage}:</strong><br>
+                            ${step.action}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+
+        outputDiv.innerHTML = htmlResult;
+
+    } catch (e) {
+        outputDiv.innerHTML = `<p style='color: red;'>Error: ${e.message}</p>`;
+    } finally {
+        this.showLoadingOverlay(false);
+    }
+},
+
+            showSellerForm: function() {
+                document.getElementById('buysell-choice-wrapper').style.display = 'none';
+                document.getElementById('seller-form-container').style.display = 'block';
+            },
+
+            showBuysellChoice: function() {
+                document.getElementById('seller-form-container').style.display = 'none';
+                document.getElementById('buysell-choice-wrapper').style.display = 'flex';
+            },
+
+            redirectToBuyerPage: function() {
+                window.location.href = '/buyer';
+            },
+
+            submitSellerItem: async function() {
+                const sellerName = document.getElementById('seller-name').value;
+                const itemName = document.getElementById('seller-item-name').value;
+                const price = document.getElementById('seller-price').value;
+                const imageFile = document.getElementById('seller-item-image').files[0];
+                const location = document.getElementById('seller-location').value;
+                const category = document.getElementById('seller-category').value;
+                const statusDiv = document.getElementById('seller-submit-status');
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (!sellerName || !itemName || !price || !imageFile || !location || !category) {
+                    statusDiv.innerHTML = '<p style="color:red;">Please fill all fields, select a category, and upload an image.</p>';
+                    return;
+                }
+                loadingOverlay.style.display = 'flex';
+                statusDiv.innerHTML = '<p style="color:blue;">Uploading product image...</p>';
+                try {
+                    const formData = new FormData();
+                    formData.append('item_image', imageFile);
+                    const imageUploadResponse = await fetch(`${this.API_BASE_URL}/upload-item-image`, { method: 'POST', body: formData });
+                    if (!imageUploadResponse.ok) throw new Error('Image upload failed.');
+                    const imageUploadResult = await imageUploadResponse.json();
+                    const imageUrl = imageUploadResult.imageUrl;
+                    statusDiv.innerHTML = '<p style="color:blue;">Image uploaded. Saving details...</p>';
+                    const itemData = { sellerName, itemName, itemPrice: parseFloat(price), itemImageUrl: imageUrl, sellerLocation: location, category };
+                    const addItemResponse = await fetch(`${this.API_BASE_URL}/add-item`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(itemData) });
+                    if (!addItemResponse.ok) throw new Error('Failed to save item details.');
+                    const addItemResult = await addItemResponse.json();
+                    statusDiv.innerHTML = `<p style="color:green;">${addItemResult.message}</p>`;
+                    document.getElementById('seller-name').value = '';
+                    document.getElementById('seller-item-name').value = '';
+                    document.getElementById('seller-price').value = '';
+                    document.getElementById('seller-item-image').value = '';
+                    document.getElementById('seller-location').value = '';
+                    document.getElementById('seller-category').value = '';
+                } catch (error) {
+                    statusDiv.innerHTML = `<p style="color:red;">An error occurred: ${error.message}</p>`;
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            },
+
+            getTutorials: async function(query) {
+                const outputDiv = document.getElementById('tutorials-output');
+                const searchQuery = query || document.getElementById('tutorial-search-input').value;
+
+                if (!searchQuery) {
+                    outputDiv.innerHTML = "<p style='text-align:center;'>Please enter a topic to search for tutorials.</p>";
+                    return;
+                }
+
+                this.showLoadingOverlay(true);
+                outputDiv.innerHTML = '';
+
+                try {
+                    console.log(`Searching for YouTube videos with query: "${searchQuery}"`);
+
+                    const videos = [
+                        {title: "Complete Guide to Tomato Farming", channel_name: "Farming Guruji", url: "https://www.youtube.com/watch?v=example1"},
+                        {title: "Organic Pest Control Methods", channel_name: "Green Earth", url: "https://www.youtube.com/watch?v=example2"},
+                        {title: "Advanced Drip Irrigation System", channel_name: "AgriTech Innovators", url: "https://www.youtube.com/watch?v=example3"},
+                        {title: "How to Prepare Soil for Planting", channel_name: "Farmer's Friend", url: "https://www.youtube.com/watch?v=example4"}
+                    ];
+
+                    let tutorialsHTML = '<div class="tutorials-grid">';
+                    videos.forEach(video => {
+                         tutorialsHTML += `
+                            <a href="${video.url}" target="_blank" class="tutorial-card">
+                                <div class="tutorial-card-thumbnail">
+                                    <img src="https://i.ytimg.com/vi/${video.url.split('v=')[1]}/hqdefault.jpg" alt="${video.title}">
+                                     <i class="fas fa-play play-icon"></i>
+                                </div>
+                                <div class="tutorial-card-content">
+                                    <h4>${video.title}</h4>
+                                    <p>${video.channel_name}</p>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    tutorialsHTML += '</div>';
+                    outputDiv.innerHTML = tutorialsHTML;
+
+                } catch (error) {
+                    outputDiv.innerHTML = `<p style="color:red; text-align:center;">Error fetching tutorials: ${error.message}</p>`;
+                } finally {
+                    this.showLoadingOverlay(false);
+                }
+
+            },
+
+            openNewsModal: function(url) {
+                if (url.includes("youtube.com/watch")) {
+                    const videoId = url.split('v=')[1].split('&')[0];
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                    document.getElementById('news-iframe').src = embedUrl;
+                    document.getElementById('news-modal').style.display = 'flex';
+                } else {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
+            },
+
+            closeNewsModal: function() {
+                document.getElementById('news-iframe').src = '';
+                document.getElementById('news-modal').style.display = 'none';
+            },
+
+            openImageModal: function(src) {
+                document.getElementById('full-image').src = src;
+                document.getElementById('image-modal-overlay').style.display = 'flex';
+            },
+
+            closeImageModal: function() {
+                document.getElementById('image-modal-overlay').style.display = 'none';
+                document.getElementById('full-image').src = '';
+            },
+
+            initDashboardSlider: function() {
+                // This function remains for the desktop view
+            },
+
+            showLoadingOverlay: function(show) {
+                document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+            },
+
+            // NEW functions for mobile login page
+            setupMobileLoginView: function() {
+                if (window.innerWidth > 768) return; // Only for mobile
+
+                const signInForm = document.querySelector('.sign-in-container');
+                const signUpForm = document.querySelector('.sign-up-container');
+                const toggleContainer = document.querySelector('.mobile-toggle-forms');
+
+                // Default to showing sign-in form
+                signInForm.style.display = 'flex';
+                signUpForm.style.display = 'none';
+                toggleContainer.style.display = 'block';
+
+                // Set toggle text and button correctly
+                document.getElementById('mobile-toggle-text').textContent = "Don't have an account? ";
+                document.getElementById('mobile-toggle-btn').textContent = "Sign Up";
+            },
+
+            toggleMobileForms: function() {
+                const signInForm = document.querySelector('.sign-in-container');
+                const signUpForm = document.querySelector('.sign-up-container');
+                const toggleText = document.getElementById('mobile-toggle-text');
+                const toggleBtn = document.getElementById('mobile-toggle-btn');
+
+                const isSignInVisible = signInForm.style.display === 'flex';
+
+                if (isSignInVisible) {
+                    signInForm.style.display = 'none';
+                    signUpForm.style.display = 'flex';
+                    toggleText.textContent = "Already have an account? ";
+                    toggleBtn.textContent = "Sign In";
+                } else {
+                    signInForm.style.display = 'flex';
+                    signUpForm.style.display = 'none';
+                    toggleText.textContent = "Don't have an account? ";
+                    toggleBtn.textContent = "Sign Up";
+                }
+            }
+
+        };
+        App.init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+requests
+Flask
+Flask-Cors
+cloudinary
+pymongo 
+bson
+firebase-admin
+gunicorn
+
+
+
+
+
+
+
+
+

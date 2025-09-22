@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Farmer's Market - Fresh & Fast</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.js"></script>
+
+    <style>
+        :root {
+            --primary: #27AE60;
+            --primary-dark: #229954;
+            --secondary: #2980b9;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f4f7f6;
+            --white: #ffffff;
+            --radius: 12px;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 25px rgba(46, 204, 113, 0.15);
+        }
+
+        /* --- Global & Animation Keyframes --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes cartBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(100%); opacity: 0; } }
+
+        /* --- Common Elements --- */
+        .page-view { display: none; }
+        .page-view.active { display: block; }
+        .back-to-shop-btn { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 25px; background: none; border: none; color: var(--primary); font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        /* --- Header --- */
+        header { background: linear-gradient(90deg, var(--primary), var(--primary-dark)); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; animation: fadeInDown 0.6s ease-out; }
+        header h1 { font-size: 26px; }
+        .nav-links { display: flex; align-items: center; gap: 10px; }
+        .nav-button { padding: 10px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--white); border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .nav-button:hover { background: var(--white); color: var(--primary-dark); transform: translateY(-2px); }
+        .nav-button .count { background-color: var(--danger); color: white; border-radius: 50%; padding: 2px 8px; font-size: 12px; font-weight: bold; margin-left: 5px; }
+        .nav-button.bouncing { animation: cartBounce 0.5s ease; }
+        .menu-toggle-buyer { display: none; font-size: 1.8rem; background: none; border: none; color: white; cursor: pointer; z-index: 1002; }
+
+        /* --- Hero Banner --- */
+        #hero-banner { background: linear-gradient(110deg, var(--primary-dark), #58D68D); color: var(--white); padding: 40px; text-align: center; border-radius: var(--radius); margin: 25px 40px 0; animation: fadeInDown 0.8s ease-out; }
+        #hero-banner h2 { font-size: 28px; margin-bottom: 10px; }
+        #hero-banner p { font-size: 16px; opacity: 0.9; }
+
+        /* --- Filter Controls --- */
+        .filter-controls { max-width: 1400px; margin: 0 auto; padding: 25px 40px 10px; display: flex; flex-direction: column; gap: 20px; animation: fadeInDown 0.7s ease-out; }
+        .search-bars { display: flex; gap: 20px; flex-wrap: wrap; }
+        .search-input { flex-grow: 1; padding: 15px 20px; border: 1px solid #ddd; border-radius: var(--radius); font-size: 16px; transition: all 0.3s ease; min-width: 250px; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2); }
+        .category-filters { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .category-btn { padding: 10px 25px; border: 2px solid transparent; background-color: var(--white); color: var(--text-dark); border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px; }
+        .category-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); color: var(--primary-dark); }
+        .category-btn.active { background-color: var(--primary); color: var(--white); border-color: var(--primary-dark); }
+        
+        /* --- Product Grid --- */
+        .product-list { padding: 20px 40px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); justify-content: center; gap: 30px; max-width: 1400px; margin: 0 auto; }
+        .product-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease, box-shadow 0.3s ease; opacity: 0; animation: fadeInUp 0.5s ease-out forwards; position: relative; border: 1px solid #eee; cursor: pointer; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+        .product-card:hover .product-img-container img { transform: scale(1.05); }
+        .product-img-container { width: 100%; height: 200px; overflow: hidden; }
+        .product-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .product-info { padding: 20px; text-align: left; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-card h3 { margin: 0 0 8px; font-size: 18px; line-height: 1.4; height: 50px; }
+        .product-card .price-container { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .product-card .price { color: var(--primary-dark); font-size: 20px; font-weight: bold; }
+        .product-card .original-price { text-decoration: line-through; color: var(--text-light); font-size: 15px; }
+        .rating-stars { color: var(--warning); font-size: 14px; margin-bottom: 10px; }
+        .rating-stars .review-count { color: var(--text-light); margin-left: 5px; }
+        .product-actions { margin-top: auto; display: grid; grid-template-columns: 1fr; gap: 10px; padding-top: 15px; }
+        .action-button { border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .action-button:active { transform: scale(0.95); }
+        .add-to-cart-btn { background: var(--primary); color: var(--white); }
+        .add-to-cart-btn:hover { background: var(--primary-dark); }
+        .wishlist-btn { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.8); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; backdrop-filter: blur(5px); z-index: 5; }
+        .wishlist-btn:hover { background: var(--white); transform: scale(1.1); }
+        .wishlist-btn .fas { color: var(--danger); display: none; }
+        .wishlist-btn.active .far { display: none; }
+        .wishlist-btn.active .fas { display: inline-block; animation: cartBounce 0.4s ease-out; }
+        .discount-badge { position: absolute; top: 15px; left: 15px; background: var(--danger); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 4; }
+        
+        /* --- SINGLE PRODUCT DETAIL VIEW --- */
+        #product-detail-view { max-width: 1200px; margin: 30px auto; padding: 40px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); animation: fadeInUp 0.6s ease-out; }
+        .detail-view-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; }
+        .product-detail-images img { width: 100%; height: 450px; object-fit: cover; border-radius: var(--radius); }
+        .product-detail-info h2 { font-size: 32px; color: var(--text-dark); margin-bottom: 15px; }
+        .product-detail-info .price-container { margin: 20px 0; }
+        .product-detail-info .price { font-size: 28px; }
+        .product-detail-info .original-price { font-size: 20px; }
+        .price-container .save-amount { font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-left: 15px; }
+        .product-detail-info .description { color: var(--text-light); line-height: 1.8; font-size: 16px; margin: 20px 0; }
+        .info-section { background: var(--bg-light); padding: 15px; border-radius: var(--radius); margin: 20px 0; font-size: 15px; }
+        .detail-actions { display: flex; gap: 15px; margin-top: 25px; }
+        .detail-actions .action-button { padding: 15px; font-size: 16px; flex: 1; }
+        .buy-now-btn { background-color: var(--secondary); color: var(--white); }
+        .buy-now-btn:hover { background-color: #2471a3; }
+        .stock-status { font-weight: 600; padding: 5px 10px; border-radius: 8px; font-size: 14px; }
+        .stock-status.in-stock { color: var(--primary-dark); background-color: #E8F8F5; }
+        .stock-status.low-stock { color: #D68910; background-color: #FEF9E7; }
+        .stock-status.out-of-stock { color: var(--danger); background-color: #FDEDEC; }
+        .delivery-info { font-size: 16px; margin: 20px 0; color: var(--text-dark); }
+        .delivery-info i { color: var(--primary); margin-right: 10px; }
+
+        /* --- RELATED PRODUCTS & REVIEWS --- */
+        .content-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px; }
+        .content-section h3 { text-align: center; font-size: 24px; margin-bottom: 30px; color: var(--text-dark); }
+        #related-products-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        #review-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .review-card { background: var(--bg-light); padding: 20px; border-radius: var(--radius); border-left: 4px solid var(--primary); }
+        .review-card p { margin: 10px 0; }
+        .review-meta { font-size: 14px; color: var(--text-light); font-weight: 500; }
+        #review-form { margin-top: 30px; padding: 25px; background: var(--bg-light); border-radius: var(--radius); }
+        #review-form h4 { text-align: left; margin-bottom: 20px; font-size: 18px; }
+        .star-rating-input { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 5px; margin-bottom: 15px; }
+        .star-rating-input input { display: none; }
+        .star-rating-input label { font-size: 24px; color: #ccc; cursor: pointer; transition: color 0.2s; }
+        .star-rating-input input:checked ~ label, .star-rating-input label:hover, .star-rating-input label:hover ~ label { color: var(--warning); }
+        #review-form textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; min-height: 100px; font-size: 16px; margin-bottom: 15px; }
+        #review-form button { width: 100%; }
+
+        /* --- ORDERS VIEW --- */
+        #orders-view, #order-detail-view { max-width: 1000px; margin: 30px auto; padding: 40px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); }
+        #orders-view h2, #order-detail-view h2 { text-align: center; margin-bottom: 30px; }
+        .order-card { display: flex; gap: 20px; padding: 20px; background: var(--white); border-radius: var(--radius); margin-bottom: 15px; border: 1px solid #eee; transition: all 0.3s ease; }
+        .order-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+        .order-card.cancelled { opacity: 0.6; background: #f9f9f9; }
+        .order-card-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .order-card-details { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .order-card-details h4 { font-size: 16px; margin-bottom: 8px; }
+        .order-card-status { font-size: 14px; font-weight: 600; color: var(--primary-dark); }
+        .order-card-status.cancelled { color: var(--danger); }
+        .order-card-actions { text-align: right; display: flex; align-items: center; }
+        .order-card-actions .action-button { padding: 10px 20px; font-size: 14px; }
+        
+        /* --- ORDER TRACKING & DETAILS --- */
+        .tracking-container { padding: 30px; background: var(--bg-light); border-radius: var(--radius); }
+        .tracking-timeline { list-style-type: none; padding-left: 20px; }
+        .timeline-step { position: relative; padding: 0 0 40px 40px; }
+        .timeline-step::before { content: ''; position: absolute; left: 0; top: 5px; width: 20px; height: 20px; border-radius: 50%; background: var(--white); border: 4px solid #ccc; }
+        .timeline-step::after { content: ''; position: absolute; left: 9px; top: 25px; width: 2px; height: 100%; background: #ccc; }
+        .timeline-step:last-child::after { display: none; }
+        .timeline-step.completed::before { border-color: var(--primary); background: var(--primary); }
+        .timeline-step.completed::after { background: var(--primary); }
+        .timeline-step.active::before { border-color: var(--primary); background: var(--white); }
+        .timeline-content h5 { font-size: 16px; margin-bottom: 5px; }
+        .timeline-content p { font-size: 14px; color: var(--text-light); }
+        #order-detail-content { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .order-detail-card { background: var(--bg-light); padding: 20px; border-radius: var(--radius); }
+        .order-detail-card h4 { margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .order-detail-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;}
+        .order-detail-actions .action-button { background: var(--white); border: 1px solid var(--primary); color: var(--primary); }
+        .order-detail-actions .action-button.cancel-btn { border-color: var(--danger); color: var(--danger); }
+        .order-items-list .order-item { display: flex; gap: 15px; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+        .order-items-list .order-item:last-child { border-bottom: none; }
+        .order-items-list img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .order-item-info { flex-grow: 1; }
+        .order-item-info span { display: block; }
+        .order-summary { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 20px; }
+        .order-summary span { color: var(--primary-dark); }
+        .order-status-message { padding: 15px; border-radius: var(--radius); background-color: #FDEDEC; color: var(--danger); font-weight: 500; text-align: center; }
+
+        /* --- Modals and Panels --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.4s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--white); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow-hover); width: 90%; max-width: 500px; transform: scale(0.9); transition: transform 0.4s ease; position: relative; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.1); border: none; font-size: 20px; color: #555; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 5; }
+        .modal-close-btn:hover { background: rgba(0,0,0,0.2); transform: rotate(90deg); }
+        .wishlist-modal-content, .help-modal-content, .quantity-modal-content, .cancel-modal-content { max-height: 80vh; display: flex; flex-direction: column; text-align: left; }
+        .wishlist-items { overflow-y: auto; padding-right: 15px; margin: 0 -15px; }
+        .wishlist-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+        .wishlist-item img { width: 80px; height: 80px; border-radius: var(--radius); margin-right: 15px; object-fit: cover;}
+        .wishlist-item-info { text-align: left; flex-grow: 1; }
+        .wishlist-item-info h4 { margin-bottom: 5px; }
+        .wishlist-item-actions { display: flex; flex-direction: column; gap: 8px; }
+        .wishlist-item-actions .action-button { padding: 8px 12px; font-size: 12px; }
+        .help-modal-content p { margin: 15px 0; line-height: 1.7; text-align: center; }
+        .help-modal-content .contact-info { font-weight: 600; color: var(--primary-dark); }
+        .quantity-modal-product { display: flex; align-items: center; gap: 20px; margin: 20px 0; text-align: left; }
+        .quantity-modal-product img { width: 100px; height: 100px; border-radius: var(--radius); object-fit: cover; }
+        .quantity-modal-product-info h4 { font-size: 18px; margin-bottom: 8px; }
+        .quantity-modal-product-info .price { font-size: 16px; color: var(--primary-dark); font-weight: 600; }
+        .quantity-input-group { margin: 20px 0; }
+        .quantity-input-group label { display: block; margin-bottom: 10px; font-weight: 500; }
+        .quantity-input-group input { width: 100%; padding: 15px; font-size: 18px; text-align: center; border: 2px solid #ddd; border-radius: var(--radius); }
+        .quantity-input-group input:focus { outline: none; border-color: var(--primary); }
+        #cancel-form select, #cancel-form textarea { width: 100%; padding: 12px; font-size: 16px; border-radius: var(--radius); border: 1px solid #ddd; margin-top: 10px; }
+        #cancel-form textarea { min-height: 100px; }
+
+        /* Cart Panel */
+        .cart-panel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: var(--white); box-shadow: -10px 0 30px rgba(0,0,0,0.1); z-index: 3000; display: flex; flex-direction: column; transition: right 0.5s cubic-bezier(0.77, 0, 0.175, 1); }
+        .cart-panel.active { right: 0; }
+        .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
+        .cart-header h2 { font-size: 22px; }
+        .cart-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-light); transition: transform 0.3s; }
+        .cart-close-btn:hover { transform: rotate(90deg); }
+        .cart-items { flex-grow: 1; overflow-y: auto; padding: 10px 20px; }
+        .cart-item { display: flex; align-items: center; padding: 20px 0; border-bottom: 1px solid #f0f0f0; }
+        .cart-item img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; margin-right: 15px; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-info h4 { font-size: 16px; margin-bottom: 5px; }
+        .cart-item-info .price { color: var(--primary); font-weight: 600; }
+        .quantity-control { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 8px; margin-left: auto;}
+        .quantity-control button { background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px 10px; color: var(--text-dark); }
+        .remove-item-btn { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; margin-left: 20px; transition: color 0.3s; }
+        .remove-item-btn:hover { color: #c0392b; }
+        .cart-footer { padding: 20px; border-top: 1px solid #eee; background: #f8f9fa; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        .checkout-btn { width: 100%; padding: 15px; background: var(--primary); color: var(--white); border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .checkout-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .empty-message, .loading-container, .error-text, .no-results-message { text-align: center; padding: 50px 20px; color: var(--text-light); width: 100%; grid-column: 1 / -1;}
+        .empty-message i, .no-results-message i { font-size: 48px; margin-bottom: 15px; color: #bdc3c7; }
+        .loader { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+
+        /* --- Checkout Modal --- */
+        .checkout-modal-content { max-width: 600px; }
+        .checkout-body { max-height: 75vh; overflow-y: auto; }
+        .checkout-modal-content{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-hover);width:90%;transform:scale(.9);transition:transform .4s ease;overflow:hidden}.modal-overlay.active .checkout-modal-content{transform:scale(1)}.checkout-header{background:var(--primary);color:var(--white);padding:20px;text-align:center;position:relative}.checkout-modal-close-btn{position:absolute;top:50%;right:20px;transform:translateY(-50%);background:none;border:none;color:var(--white);font-size:24px;cursor:pointer;opacity:.8;transition:all .3s}.checkout-modal-close-btn:hover{opacity:1;transform:translateY(-50%) rotate(90deg)}.checkout-body{padding:30px}.checkout-step{display:none;animation:fadeInUp .5s ease-out}.checkout-step.active-step{display:block}.form-group{margin-bottom:20px;text-align:left}.form-group label{display:block;margin-bottom:8px;font-weight:500}.form-group input{width:100%;padding:12px 15px;border:1px solid #ccc;border-radius:8px;font-size:16px;transition:all .3s ease}.form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(39,174,96,.2)}.checkout-button{width:100%;padding:15px;background:var(--secondary);color:var(--white);border:none;border-radius:12px;font-size:18px;font-weight:600;cursor:pointer;transition:all .3s ease;margin-top:10px}.checkout-button:hover{background:#20638f;transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.1)}.payment-options{display:grid;gap:15px}.payment-option input[type=radio]{display:none}.payment-option label{display:flex;align-items:center;padding:20px;border:2px solid #ddd;border-radius:var(--radius);cursor:pointer;transition:all .3s ease}.payment-option label i{font-size:24px;margin-right:15px;width:30px;text-align:center;color:var(--text-light)}.payment-option input:checked+label{border-color:var(--primary);background-color:#f5fbfd;box-shadow:0 4px 12px rgba(0,0,0,.08)}.payment-option input:checked+label i{color:var(--primary)}.confirmation-step{text-align:center;padding:40px 20px}.confirmation-step .fa-check-circle{font-size:80px;color:var(--primary);margin-bottom:20px;animation:cartBounce .8s ease-out}.confirmation-step h3{font-size:24px;margin-bottom:10px}
+
+        /* --- Toast Notification --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background-color: var(--text-dark); color: var(--white); padding: 15px 25px; border-radius: var(--radius); box-shadow: var(--shadow-hover); display: flex; align-items: center; gap: 10px; animation: toastIn 0.5s ease, toastOut 0.5s ease 3s forwards; }
+        .toast.success { background-color: var(--primary); }
+        .toast.error { background-color: var(--danger); }
+        .toast.wishlist { background: linear-gradient(45deg, #c0392b, #e74c3c); }
+        .toast.info { background-color: var(--secondary); }
+        
+        /* --- Responsive Styles --- */
+        @media (max-width: 992px) {
+            .detail-view-container { grid-template-columns: 1fr; gap: 30px; }
+            .product-detail-images img { height: 350px; }
+            .order-detail-card { padding: 15px; }
+        }
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; flex-wrap: wrap; }
+            header h1 { font-size: 22px; width: 100%; text-align: center; margin-bottom: 10px;}
+            .menu-toggle-buyer { display: block; position: absolute; top: 15px; right: 20px; }
+            .nav-links { position: absolute; top: 100%; right: 0; background: var(--primary-dark); flex-direction: column; width: 250px; padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.2); border-bottom-left-radius: var(--radius); transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+            .nav-links.active { transform: translateX(0); }
+            .nav-links .nav-button { width: 100%; justify-content: flex-start; padding: 15px 25px; background: transparent; border: none; color: white; border-radius: 0; }
+            .nav-links .nav-button:hover { background: var(--primary); transform: none; }
+            #hero-banner { margin: 15px 20px 0; padding: 30px 20px; }
+            #hero-banner h2 { font-size: 22px; }
+            .filter-controls, .product-list, #product-detail-view, #orders-view, #order-detail-view { padding-left: 20px; padding-right: 20px; }
+            .search-input { min-width: 100%; }
+            .category-btn { font-size: 14px; padding: 8px 15px; }
+            .product-list { grid-template-columns: 1fr; }
+            .detail-actions { flex-direction: column; }
+            #product-detail-view, #orders-view, #order-detail-view { padding: 20px; }
+            .product-detail-info h2 { font-size: 26px; }
+            .order-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .order-card-actions { width: 100%; text-align: left; margin-top: 10px; }
+        }
+    </style>
+</head>
+
+<body>
+  <header>
+    <h1><i class="fas fa-store"></i> Farmer's Market</h1>
+    <button class="menu-toggle-buyer" id="menu-toggle-buyer"><i class="fas fa-bars"></i></button>
+    <div class="nav-links" id="nav-links">
+        <a href="/" class="nav-button"> <i class="fas fa-home"></i> Home</a>
+        <button id="orders-button" class="nav-button"><i class="fas fa-box"></i> My Orders</button>
+        <button id="wishlist-button" class="nav-button"><i class="fas fa-heart"></i> Wishlist <span id="wishlist-count" class="count">0</span></button>
+        <button id="cart-button" class="nav-button"><i class="fas fa-shopping-cart"></i> View Cart <span id="cart-count" class="count">0</span></button>
+        <button id="help-button" class="nav-button"><i class="fas fa-question-circle"></i> Help & Support</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="main-view" class="page-view active">
+        <div id="hero-banner">
+            <h2>Fresh Deals of the Week!</h2>
+            <p>Get up to 30% off on seasonal vegetables and fruits. Hurry, limited time offer!</p>
+        </div>
+        <div class="filter-controls">
+            <div class="search-bars">
+                <input type="text" id="product-search" class="search-input" placeholder="🔍 Search for fresh products...">
+                <input type="text" id="location-search" class="search-input" placeholder="📍 Search by farm location...">
+            </div>
+            <div id="category-filters" class="category-filters">
+                <button class="category-btn active" data-category="all"><i class="fas fa-star"></i> All</button>
+                <button class="category-btn" data-category="fruits"><i class="fas fa-apple-alt"></i> Fruits</button>
+                <button class="category-btn" data-category="vegetables"><i class="fas fa-carrot"></i> Vegetables</button>
+            </div>
+        </div>
+        <div id="product-list" class="product-list"></div>
+    </section>
+    
+    <section id="product-detail-view" class="page-view"></section>
+    <section id="orders-view" class="page-view"></section>
+    <section id="order-detail-view" class="page-view"></section>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <div id="wishlist-modal" class="modal-overlay">
+      <div class="modal-content wishlist-modal-content">
+          <button id="wishlist-close-btn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+          <h2 style="margin-bottom: 20px; text-align:center;"><i class="fas fa-heart"></i> Your Wishlist</h2>
+          <div id="wishlist-items" class="wishlist-items"></div>
+      </div>
+  </div>
+  
+  <div id="help-modal" class="modal-overlay">
+    <div class="modal-content help-modal-content">
+        <button id="help-close-btn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+        <h2 style="margin-bottom: 20px; text-align:center;"><i class="fas fa-question-circle"></i> Help & Support</h2>
+        <p>If you have any questions or need assistance, please contact us!</p>
+        <p><strong>Phone:</strong> <span class="contact-info">+91 96558 65777</span></p>
+        <p><strong>Email:</strong> <span class="contact-info">Lokesh152005@gmail.com</span></p>
+    </div>
+  </div>
+
+  <div id="quantity-modal" class="modal-overlay">
+    <div class="modal-content quantity-modal-content">
+        <button id="quantity-close-btn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+        <h2 style="text-align:center;">Select Quantity</h2>
+        <div id="quantity-modal-product-display" class="quantity-modal-product"></div>
+        <div class="quantity-input-group">
+            <label for="quantity-input">Enter quantity (in kg)</label>
+            <input type="number" id="quantity-input" value="1" min="0.5" step="0.5">
+        </div>
+        <button id="quantity-confirm-btn" class="action-button add-to-cart-btn" style="width: 100%; padding: 15px; font-size: 16px;"><i class="fas fa-check"></i> Confirm & Proceed</button>
+    </div>
+  </div>
+
+  <div id="cancel-modal" class="modal-overlay">
+      <div class="modal-content cancel-modal-content">
+          <button id="cancel-close-btn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+          <h2>Cancel Order</h2>
+          <p style="margin: 15px 0;">Please let us know why you are cancelling this order.</p>
+          <form id="cancel-form">
+              <div class="form-group">
+                  <label for="cancel-reason">Reason for cancellation</label>
+                  <select id="cancel-reason" name="reason" required>
+                      <option value="">--Please choose a reason--</option>
+                      <option value="Ordered by mistake">Ordered by mistake</option>
+                      <option value="Item not required anymore">Item not required anymore</option>
+                      <option value="Delivery address is incorrect">Delivery address is incorrect</option>
+                      <option value="Other">Other (Please specify below)</option>
+                  </select>
+              </div>
+              <div class="form-group" id="other-reason-group" style="display: none;">
+                  <label for="other-reason">Other reason</label>
+                  <textarea id="other-reason" placeholder="Please provide details..."></textarea>
+              </div>
+              <button type="submit" class="action-button" style="width:100%; padding: 15px; background-color: var(--danger); color: white;">Confirm Cancellation</button>
+          </form>
+      </div>
+  </div>
+
+  <div id="cart-panel" class="cart-panel">
+    <div class="cart-header">
+      <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+      <button id="cart-close-btn" class="cart-close-btn"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-footer" class="cart-footer">
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cart-total-price">₹0.00</span>
+        </div>
+        <button class="checkout-btn"><i class="fas fa-credit-card"></i> Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <div id="checkout-modal" class="modal-overlay">
+      <div class="checkout-modal-content">
+          <div class="checkout-header">
+              <h2 id="checkout-title">Checkout</h2>
+              <button id="checkout-modal-close-btn" class="checkout-modal-close-btn"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="checkout-body">
+              <div id="address-step" class="checkout-step active-step">
+                  <h4><i class="fas fa-map-marker-alt"></i> Enter Your Delivery Address</h4>
+                  <form id="address-form" style="margin-top: 20px;">
+                      <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" required></div>
+                      <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" required></div>
+                      <div class="form-group"><label for="address">Address</label><input type="text" id="address" required></div>
+                      <div class="form-group"><label for="city">City</label><input type="text" id="city" required></div>
+                      <div class="form-group"><label for="pincode">Pincode</label><input type="text" id="pincode" required></div>
+                      <button type="submit" class="checkout-button">Save & Continue</button>
+                  </form>
+              </div>
+              <div id="payment-step" class="checkout-step">
+                  <h4><i class="fas fa-credit-card"></i> Choose Payment Method</h4>
+                  <div id="payment-options-container">
+                      <div class="payment-options" style="margin-top: 20px;">
+                          <div class="payment-option"><input type="radio" id="cod" name="payment" value="cod" checked><label for="cod"><i class="fas fa-hand-holding-usd"></i>Cash on Delivery</label></div>
+                          <div class="payment-option"><input type="radio" id="upi" name="payment" value="upi"><label for="upi"><i class="fab fa-google-pay"></i>UPI (GPay, etc.)</label></div>
+                      </div>
+                      <button id="place-order-btn" class="checkout-button">Place Order / Proceed</button>
+                  </div>
+                  <div id="upi-qr-display" style="display: none; text-align: center; margin-top: 20px;">
+                      <h5>Scan QR to Pay</h5>
+                      <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+                      <p id="upi-amount" style="font-weight: bold; font-size: 20px; color: #1e8449;"></p>
+                      <button id="confirm-payment-btn" class="checkout-button" style="margin-top: 20px; background-color: #27ae60;">I Have Paid</button>
+                  </div>
+              </div>
+              <div id="confirmation-step" class="checkout-step">
+                  <i class="fas fa-check-circle"></i><h3>Order Placed Successfully!</h3>
+                  <p>Thank you for your purchase. Your fresh produce is on its way!</p>
+                  <button id="close-confirmation-btn" class="checkout-button" style="margin-top: 20px;">Continue Shopping</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    // --- STATE MANAGEMENT ---
+    let cart = []; let wishlist = []; let allProducts = []; let orders = [];
+    let allReviews = {}; let activeCategory = 'all'; let deliveryAddress = {};
+
+    // --- DOM ELEMENTS ---
+    const mainView=document.getElementById("main-view"),productDetailView=document.getElementById("product-detail-view"),ordersView=document.getElementById("orders-view"),orderDetailView=document.getElementById("order-detail-view"),productContainer=document.getElementById("product-list"),productSearchInput=document.getElementById("product-search"),locationSearchInput=document.getElementById("location-search"),categoryFiltersContainer=document.getElementById("category-filters"),cartButton=document.getElementById("cart-button"),cartCount=document.getElementById("cart-count"),cartPanel=document.getElementById("cart-panel"),cartCloseBtn=document.getElementById("cart-close-btn"),cartItemsContainer=document.getElementById("cart-items"),cartTotalPriceEl=document.getElementById("cart-total-price"),cartFooter=document.getElementById("cart-footer"),wishlistModal=document.getElementById("wishlist-modal"),wishlistButton=document.getElementById("wishlist-button"),wishlistCount=document.getElementById("wishlist-count"),wishlistItemsContainer=document.getElementById("wishlist-items"),wishlistCloseBtn=document.getElementById("wishlist-close-btn"),helpModal=document.getElementById("help-modal"),helpButton=document.getElementById("help-button"),helpCloseBtn=document.getElementById("help-close-btn"),ordersButton=document.getElementById("orders-button"),toastContainer=document.getElementById("toast-container"),menuToggleBuyer=document.getElementById("menu-toggle-buyer"),navLinks=document.getElementById("nav-links"),quantityModal=document.getElementById("quantity-modal"),quantityCloseBtn=document.getElementById("quantity-close-btn"),quantityConfirmBtn=document.getElementById("quantity-confirm-btn"),quantityInput=document.getElementById("quantity-input"),quantityProductDisplay=document.getElementById("quantity-modal-product-display"),checkoutModal=document.getElementById("checkout-modal"),checkoutModalCloseBtn=document.getElementById("checkout-modal-close-btn"),checkoutTitle=document.getElementById("checkout-title"),addressStep=document.getElementById("address-step"),paymentStep=document.getElementById("payment-step"),confirmationStep=document.getElementById("confirmation-step"),addressForm=document.getElementById("address-form"),placeOrderBtn=document.getElementById("place-order-btn"),closeConfirmationBtn=document.getElementById("close-confirmation-btn"),paymentOptionsContainer=document.getElementById("payment-options-container"),upiQrDisplay=document.getElementById("upi-qr-display"),qrCodeContainer=document.getElementById("qrcode"),upiAmountEl=document.getElementById("upi-amount"),confirmPaymentBtn=document.getElementById("confirm-payment-btn"),cancelModal=document.getElementById("cancel-modal"),cancelCloseBtn=document.getElementById("cancel-close-btn"),cancelForm=document.getElementById("cancel-form"),cancelReasonSelect=document.getElementById("cancel-reason"),otherReasonGroup=document.getElementById("other-reason-group");
+
+    // --- LOCAL STORAGE & STATE SYNC ---
+    function saveStateToLocalStorage(){localStorage.setItem("farmerCart",JSON.stringify(cart));localStorage.setItem("farmerWishlist",JSON.stringify(wishlist));localStorage.setItem("farmerOrders",JSON.stringify(orders));localStorage.setItem("farmerReviews",JSON.stringify(allReviews));localStorage.setItem("farmerAddress",JSON.stringify(deliveryAddress))}
+    function loadStateFromLocalStorage(){cart=JSON.parse(localStorage.getItem("farmerCart"))||[];wishlist=JSON.parse(localStorage.getItem("farmerWishlist"))||[];orders=JSON.parse(localStorage.getItem("farmerOrders"))||[];allReviews=JSON.parse(localStorage.getItem("farmerReviews"))||{};deliveryAddress=JSON.parse(localStorage.getItem("farmerAddress"))||{}}
+    
+    // --- UTILITY FUNCTIONS ---
+    function showToast(a,t="success"){const e=document.createElement("div");e.className=`toast ${t}`;const o={success:"fa-check-circle",wishlist:"fa-heart",error:"fa-exclamation-circle",info:"fa-info-circle"};e.innerHTML=`<i class="fas ${o[t]}"></i> ${a}`,toastContainer.appendChild(e),setTimeout(()=>e.remove(),3500)}
+    function showView(a){document.querySelectorAll(".page-view").forEach(t=>t.classList.remove("active")),document.getElementById(a).classList.add("active"),window.scrollTo(0,0)}
+    function getDeliveryDate(a=2){const t=new Date;return t.setDate(t.getDate()+a),t.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}
+
+    // --- API & RENDERING ---
+    async function fetchAndRenderProducts(){productContainer.innerHTML='<div class="loading-container"><div class="loader"></div></div>';try{const a=await fetch("/get-items");if(!a.ok)throw new Error(`HTTP error! Status: ${a.status}`);let t=await a.json();allProducts=t.map((a,t)=>({...a,stock:20-t%15,originalPrice:t%3==0&&a.itemPrice?(1.25*a.itemPrice).toFixed(2):null})).sort((a,t)=>t.id>a.id?1:-1),filterAndRenderProducts()}catch(a){console.error("Failed to fetch products:",a),productContainer.innerHTML='<p class="error-text">Sorry, we couldn\'t load the products. Please try again later.</p>'}}
+    function filterAndRenderProducts(){let a=[...allProducts];const t=productSearchInput.value.trim().toLowerCase(),e=locationSearchInput.value.trim().toLowerCase();"all"!==activeCategory&&(a=a.filter(a=>a.category?.toLowerCase()===activeCategory)),t&&(a=a.filter(a=>a.itemName.toLowerCase().includes(t))),e&&(a=a.filter(a=>a.sellerLocation?.toLowerCase().includes(e))),renderProducts(a)}
+    function renderProducts(a,t=productContainer){if(t.innerHTML="",0===a.length&&t===productContainer)return void(t.innerHTML='<div class="no-results-message"><i class="fas fa-search"></i><p>No products found.</p></div>');a.forEach((a,e)=>{const o=document.createElement("div");o.className="product-card",o.style.animationDelay=`${50*e}ms`;const n=wishlist.some(t=>t.id===a.id),i=a.originalPrice&&parseFloat(a.originalPrice)>parseFloat(a.itemPrice);let r="";if(i){const t=Math.round(100*((a.originalPrice-a.itemPrice)/a.originalPrice));r=`<div class="discount-badge">${t}% OFF</div>`}const s=allReviews[a.id]||[];o.innerHTML=`
+                ${r}
+                <div class="product-img-container"><img src="${a.itemImageUrl}" alt="${a.itemName}" /></div>
+                <button class="wishlist-btn ${n?"active":""}"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                <div class="product-info">
+                    ${generateRatingStars(calculateAverageRating(a.id),s.length)}
+                    <h3>${a.itemName}</h3>
+                    <div class="price-container">
+                        <span class="price">₹${a.itemPrice}</span>
+                        ${i?`<span class="original-price">₹${a.originalPrice}</span>`:""}
+                    </div>
+                     <p style="font-size: 14px; color: #777; margin-top: 5px;"><i class="fas fa-map-marker-alt"></i> ${a.sellerLocation||"N/A"}</p>
+                    <div class="product-actions">
+                        <button class="action-button add-to-cart-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>`;const l=o.querySelector(".wishlist-btn");l.addEventListener("click",t=>{t.stopPropagation(),toggleWishlist(a,l)});const c=o.querySelector(".add-to-cart-btn");c.addEventListener("click",t=>{t.stopPropagation(),addToCart(a,1)}),o.addEventListener("click",()=>showProductDetailView(a.id)),t.appendChild(o)})}
+
+    // --- CART LOGIC & UPDATES ---
+    function addToCart(a,t=1){if(a.stock<=0)return void showToast("Sorry, this item is out of stock!","error");const e=cart.find(t=>t.id===a.id);e?e.quantity+=t:cart.push({...a,quantity:t}),showToast(`${a.itemName} (${t}kg) added to cart!`,"success"),updateCart(),cartButton.classList.add("bouncing"),setTimeout(()=>cartButton.classList.remove("bouncing"),500)}
+    function updateCart(){renderCartItems(),updateCartTotal(),updateCartIcon(),saveStateToLocalStorage()}
+    function renderCartItems(){0===cart.length?(cartItemsContainer.innerHTML='<div class="empty-message"><i class="fas fa-shopping-basket"></i><p>Your cart is empty.</p></div>',cartFooter.style.display="none"):(cartFooter.style.display="block",cartItemsContainer.innerHTML=cart.map(a=>`
+                <div class="cart-item" data-id="${a.id}">
+                    <img src="${a.itemImageUrl}" alt="${a.itemName}">
+                    <div class="cart-item-info">
+                        <h4>${a.itemName}</h4>
+                        <span class="price">₹${a.itemPrice} x ${a.quantity} = ₹${(a.itemPrice*a.quantity).toFixed(2)}</span>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="quantity-minus">-</button><span>${a.quantity}</span><button class="quantity-plus">+</button>
+                    </div>
+                    <button class="remove-item-btn"><i class="fas fa-trash-alt"></i></button>
+                </div>`).join(""),cartItemsContainer.querySelectorAll(".cart-item").forEach(a=>{a.querySelector(".quantity-minus").addEventListener("click",()=>changeQuantity(a.dataset.id,-1)),a.querySelector(".quantity-plus").addEventListener("click",()=>changeQuantity(a.dataset.id,1)),a.querySelector(".remove-item-btn").addEventListener("click",()=>removeFromCart(a.dataset.id))}))}
+    function changeQuantity(a,t){const e=cart.find(t=>t.id==a);e&&(e.quantity+t<=0?removeFromCart(a):(e.quantity+=t,updateCart()))}
+    function removeFromCart(a){cart=cart.filter(t=>t.id!=a),updateCart()}
+    function updateCartTotal(){cartTotalPriceEl.textContent=`₹${cart.reduce((a,t)=>a+t.itemPrice*t.quantity,0).toFixed(2)}`}
+    function updateCartIcon(){cartCount.textContent=cart.reduce((a,t)=>a+t.quantity,0)}
+
+    // --- WISHLIST LOGIC ---
+    function toggleWishlist(a,t){const e=wishlist.findIndex(t=>t.id===a.id);e>-1?(wishlist.splice(e,1),t&&t.classList.remove("active"),showToast(`${a.itemName} removed from wishlist`,"error")):(wishlist.push(a),t&&t.classList.add("active"),showToast(`${a.itemName} added to wishlist!`,"wishlist")),updateWishlist()}
+    function updateWishlist(){updateWishlistIcon(),saveStateToLocalStorage(),wishlistModal.classList.contains("active")&&renderWishlistModal()}
+    function updateWishlistIcon(){wishlistCount.textContent=wishlist.length}
+    function renderWishlistModal(){0===wishlist.length?wishlistItemsContainer.innerHTML='<div class="empty-message"><i class="fas fa-heart-broken"></i><p>Your wishlist is empty.</p></div>':(wishlistItemsContainer.innerHTML=wishlist.map(a=>`
+                <div class="wishlist-item" data-id="${a.id}">
+                    <img src="${a.itemImageUrl}" alt="${a.itemName}">
+                    <div class="wishlist-item-info"><h4>${a.itemName}</h4><span class="price">₹${a.itemPrice}</span></div>
+                    <div class="wishlist-item-actions">
+                        <button class="action-button add-to-cart-btn"><i class="fas fa-cart-plus"></i> To Cart</button>
+                        <button class="action-button details-btn remove-from-wishlist-btn"><i class="fas fa-times"></i> Remove</button>
+                    </div>
+                </div>`).join(""),wishlistItemsContainer.querySelectorAll(".wishlist-item").forEach(a=>{const t=wishlist.find(t=>t.id==a.dataset.id);a.querySelector(".add-to-cart-btn").addEventListener("click",()=>{addToCart(t,1),toggleWishlist(t,null),renderWishlistModal()}),a.querySelector(".remove-from-wishlist-btn").addEventListener("click",()=>{toggleWishlist(t,null),renderWishlistModal()})}))}
+
+    // --- PRODUCT DETAIL VIEW LOGIC ---
+    function showProductDetailView(a){const t=allProducts.find(t=>t.id==a);if(!t)return;const e=t.originalPrice&&parseFloat(t.originalPrice)>parseFloat(t.itemPrice),o=allReviews[t.id]||[];let n;n=t.stock<=0?'<span class="stock-status out-of-stock">Out of Stock</span>':t.stock<=10?`<span class="stock-status low-stock">Hurry, only ${t.stock} left!</span>`:'<span class="stock-status in-stock">In Stock</span>',productDetailView.innerHTML=`
+            <button class="back-to-shop-btn"><i class="fas fa-arrow-left"></i> Back to All Products</button>
+            <div class="detail-view-container">
+                <div class="product-detail-images"><img src="${t.itemImageUrl}" alt="${t.itemName}"></div>
+                <div class="product-detail-info">
+                    <h2>${t.itemName}</h2>
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
+                        ${generateRatingStars(calculateAverageRating(t.id),o.length)} ${n}
+                    </div>
+                    <div class="price-container">
+                        <span class="price">₹${t.itemPrice}</span>
+                        ${e?`<span class="original-price">₹${t.originalPrice}</span>`:""}
+                        ${e?`<span class="save-amount">(You save ₹${(t.originalPrice-t.itemPrice).toFixed(2)})</span>`:""}
+                    </div>
+                    <div class="delivery-info"><i class="fas fa-truck"></i> Get it by <strong>${getDeliveryDate()}</strong></div>
+                    <p class="description">${t.itemDescription||"Detailed description not available."}</p>
+                    <div class="info-section">
+                        <strong><i class="fas fa-user-circle"></i> Seller:</strong> ${t.sellerName||"N/A"}<br>
+                        <strong><i class="fas fa-map-marker-alt"></i> Location:</strong> ${t.sellerLocation||"N/A"}
+                    </div>
+                    <div class="detail-actions">
+                        <button class="action-button add-to-cart-btn" id="detail-add-to-cart" ${t.stock<=0?"disabled":""}><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                        <button class="action-button buy-now-btn" id="detail-buy-now" ${t.stock<=0?"disabled":""}><i class="fas fa-bolt"></i> Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-section">
+                <h3>Related Products</h3>
+                <div id="related-products-list" class="product-list"></div>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-star"></i> Customer Reviews</h3>
+                <div id="review-list"></div>
+                <form id="review-form">
+                    <h4>Write Your Review</h4>
+                    <div class="star-rating-input">
+                        <input type="radio" name="rating" id="star5" value="5"><label for="star5">★</label>
+                        <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
+                        <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
+                        <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
+                        <input type="radio" name="rating" id="star1" value="1" required><label for="star1">★</label>
+                    </div>
+                    <textarea id="review-comment" placeholder="Share your thoughts about the product..." required></textarea>
+                    <button type="submit" class="action-button add-to-cart-btn">Submit Review</button>
+                </form>
+            </div>`,renderReviews(t.id);const i=allProducts.filter(a=>a.category===t.category&&a.id!==t.id).slice(0,4);renderProducts(i,productDetailView.querySelector("#related-products-list")),showView("product-detail-view"),productDetailView.querySelector(".back-to-shop-btn").addEventListener("click",()=>showView("main-view")),productDetailView.querySelector("#detail-add-to-cart").addEventListener("click",()=>addToCart(t,1)),productDetailView.querySelector("#detail-buy-now").addEventListener("click",()=>showQuantityModal(t)),productDetailView.querySelector("#review-form").addEventListener("submit",a=>handleReviewSubmit(a,t.id))}
+
+    // --- REVIEW LOGIC ---
+    function calculateAverageRating(a){const t=allReviews[a]||[];return 0===t.length?0:t.reduce((a,t)=>a+t.rating,0)/t.length}
+    function renderReviews(a){const t=document.getElementById("review-list"),e=allReviews[a]||[];t.innerHTML=0===e.length?'<p class="empty-message" style="padding: 20px 0;">Be the first to review this product!</p>':e.map(a=>`
+            <div class="review-card">
+                ${generateRatingStars(a.rating,0)}
+                <p>${a.comment}</p>
+                <div class="review-meta">by <strong>${a.author}</strong> on ${new Date(a.date).toLocaleDateString()}</div>
+            </div>`).join("")}
+    function handleReviewSubmit(a,t){a.preventDefault();const e=new FormData(a.target).get("rating"),o=a.target.querySelector("#review-comment").value;if(!e)return void showToast("Please select a star rating.","error");const n={author:"Valued Customer",rating:parseInt(e),comment:o,date:(new Date).toISOString()};allReviews[t]||(allReviews[t]=[]),allReviews[t].unshift(n),saveStateToLocalStorage(),showToast("Review submitted successfully!","success"),a.target.reset(),renderReviews(t)}
+    function generateRatingStars(a=0,t=0){let e='<div class="rating-stars">';for(let o=1;o<=5;o++)e+=o<=a?'<i class="fas fa-star"></i>':o-.5<=a?'<i class="fas fa-star-half-alt"></i>':'<i class="far fa-star"></i>';return t>0&&(e+=`<span class="review-count">(${t} reviews)</span>`),e+="</div>"}
+
+    // --- ORDER HISTORY & TRACKING LOGIC (CORRECTED) ---
+    function updateOrderStatus(order) {
+        // This function makes old orders from localStorage compatible with new features
+        if (!order.trackingHistory) order.trackingHistory = [{ status: 'Order Placed', date: order.date }];
+        if (!order.estimatedDelivery) {
+            const tempDate = new Date(order.date);
+            tempDate.setDate(tempDate.getDate() + 2);
+            order.estimatedDelivery = tempDate.toISOString();
+        }
+        if (!order.status) order.status = 'Order Placed';
+        if (order.isCancelled) {
+            order.status = 'Cancelled';
+            return order;
+        }
+        if (order.status === 'Delivered') return order;
+
+        const now = new Date();
+        const orderDate = new Date(order.date);
+        const hoursPassed = (now - orderDate) / (1000 * 60 * 60);
+        
+        const addTrackingEvent = (status) => {
+            if (!order.trackingHistory.find(e => e.status === status)) {
+                order.trackingHistory.push({ status, date: new Date().toISOString() });
+                order.status = status;
+            }
+        };
+
+        if (hoursPassed > 0.01) addTrackingEvent('Shipped');
+        if (hoursPassed > 0.02) addTrackingEvent('Out for Delivery');
+        if (new Date(order.estimatedDelivery) < now) addTrackingEvent('Delivered');
+        return order;
+    }
+
+    function renderOrdersList() {
+        try {
+            orders.forEach(order => updateOrderStatus(order));
+            saveStateToLocalStorage();
+            ordersView.innerHTML = `
+                <button class="back-to-shop-btn"><i class="fas fa-arrow-left"></i> Back to Shop</button>
+                <h2><i class="fas fa-box"></i> My Orders</h2>
+                <div id="orders-list"></div>`;
+            const ordersListContainer = ordersView.querySelector('#orders-list');
+            if (orders.length === 0) {
+                ordersListContainer.innerHTML = `<div class="empty-message"><i class="fas fa-receipt"></i><p>You haven't placed any orders yet.</p></div>`;
+            } else {
+                ordersListContainer.innerHTML = orders.map(order => {
+                    const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+                    if (!firstItem) return ''; 
+                    
+                    let statusText = `Expected by ${new Date(order.estimatedDelivery).toLocaleDateString('en-IN')}`;
+                    let statusClass = '';
+                    if (order.isCancelled) {
+                        statusText = 'Cancelled';
+                        statusClass = 'cancelled';
+                    } else if (order.status === 'Delivered') {
+                        statusText = `Delivered on ${new Date(order.estimatedDelivery).toLocaleDateString('en-IN')}`;
+                    }
+
+                    return `
+                    <div class="order-card ${order.isCancelled ? 'cancelled' : ''}">
+                        <img class="order-card-img" src="${firstItem.itemImageUrl}" alt="${firstItem.itemName}">
+                        <div class="order-card-details">
+                            <h4>${firstItem.itemName}${order.items.length > 1 ? ` + ${order.items.length - 1} more items` : ''}</h4>
+                            <p class="order-card-status ${statusClass}">${statusText}</p>
+                        </div>
+                        <div class="order-card-actions">
+                            <button class="action-button buy-now-btn" data-order-id="${order.id}"><i class="fas fa-eye"></i> View Details</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                ordersListContainer.querySelectorAll('.action-button').forEach(btn => {
+                    btn.addEventListener('click', () => showOrderDetailView(btn.dataset.orderId));
+                });
+            }
+            ordersView.querySelector('.back-to-shop-btn').addEventListener('click', () => showView('main-view'));
+            showView('orders-view');
+        } catch (error) {
+            console.error("Error rendering orders list:", error);
+            showToast("Could not display orders. Old data might be corrupted.", "error");
+        }
+    }
+
+    function generateTrackingTimelineHTML(order) {
+        if (order.isCancelled) return '';
+        const statuses = ['Order Placed', 'Shipped', 'Out for Delivery', 'Delivered'];
+        let html = '<ul class="tracking-timeline">';
+        statuses.forEach((status) => {
+            const event = order.trackingHistory.find(e => e.status === status);
+            let stepClass = '';
+            if (event) stepClass = 'completed';
+            if (order.status === status && status !== 'Delivered') stepClass += ' active';
+            html += `<li class="timeline-step ${stepClass}">
+                        <div class="timeline-content">
+                            <h5>${status}</h5>
+                            ${event ? `<p>${new Date(event.date).toLocaleString()}</p>` : ''}
+                        </div>
+                     </li>`;
+        });
+        html += '</ul>';
+        return html;
+    }
+
+    function showOrderDetailView(orderId) {
+        let order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        order = updateOrderStatus(order);
+        saveStateToLocalStorage();
+
+        let actionButtonsHTML = '';
+        if (order.isCancelled) {
+            actionButtonsHTML = `<div class="order-status-message"><i class="fas fa-times-circle"></i> This order was cancelled on ${new Date(order.cancellationDate).toLocaleDateString()}.</div>`;
+        } else {
+            actionButtonsHTML += `<button class="action-button" id="download-invoice-btn"><i class="fas fa-file-pdf"></i> Download Invoice</button>`;
+            if (order.status === 'Delivered') {
+                actionButtonsHTML += `<button class="action-button" id="return-item-btn"><i class="fas fa-undo"></i> Return Item</button>`;
+            } else {
+                actionButtonsHTML += `<button class="action-button cancel-btn" id="cancel-order-btn"><i class="fas fa-times"></i> Cancel Order</button>`;
+            }
+            actionButtonsHTML += `<button class="action-button" id="help-order-btn"><i class="fas fa-question-circle"></i> Need Help?</button>`;
+        }
+        
+        orderDetailView.innerHTML = `
+            <button class="back-to-orders-btn back-to-shop-btn"><i class="fas fa-arrow-left"></i> Back to My Orders</button>
+            <h2>Order Details</h2>
+            <div id="order-detail-content">
+                <div class="tracking-container">
+                    <h4>${order.isCancelled ? 'Order Cancelled' : `Delivery expected by ${new Date(order.estimatedDelivery).toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long'})}`}</h4>
+                    ${generateTrackingTimelineHTML(order)}
+                </div>
+                <div class="order-detail-card">
+                    <h4><i class="fas fa-map-marker-alt"></i> Delivery Address</h4>
+                    <p><strong>${order.address.fullName}</strong></p>
+                    <p>${order.address.address}, ${order.address.city}, ${order.address.pincode}</p>
+                    <p>Phone: ${order.address.phone}</p>
+                </div>
+                <div class="order-detail-card">
+                    <h4><i class="fas fa-shopping-basket"></i> Items Ordered (${order.items.length})</h4>
+                    <div class="order-items-list">${order.items.map(item => `
+                        <div class="order-item">
+                            <img src="${item.itemImageUrl}" alt="${item.itemName}">
+                            <div class="order-item-info">
+                                <strong>${item.itemName}</strong>
+                                <span>Quantity: ${item.quantity} kg</span><span>Price: ₹${item.itemPrice.toFixed(2)}</span>
+                            </div>
+                            <div class="order-item-total"><strong>₹${(item.itemPrice * item.quantity).toFixed(2)}</strong></div>
+                        </div>`).join('')}
+                    </div>
+                    <div class="order-summary">Total Amount Paid: <span>₹${order.total.toFixed(2)}</span></div>
+                    <div class="order-detail-actions">${actionButtonsHTML}</div>
+                </div>
+            </div>`;
+        
+        orderDetailView.querySelector('.back-to-orders-btn').addEventListener('click', renderOrdersList);
+        if (!order.isCancelled) {
+            document.getElementById('download-invoice-btn').addEventListener('click', () => generateInvoice(orderId));
+            const cancelBtn = document.getElementById('cancel-order-btn');
+            const returnBtn = document.getElementById('return-item-btn');
+            const helpBtn = document.getElementById('help-order-btn');
+            if (cancelBtn) cancelBtn.addEventListener('click', () => showCancelModal(orderId));
+            if (returnBtn) returnBtn.addEventListener('click', () => showToast("Return request has been initiated. Our team will contact you.", "info"));
+            if (helpBtn) helpBtn.addEventListener('click', toggleHelpModal);
+        }
+        showView('order-detail-view');
+    }
+
+    // --- MODAL & PANEL TOGGLES ---
+    function toggleCartPanel(){cartPanel.classList.toggle("active"),cartPanel.classList.contains("active")&&updateCart()}
+    function toggleWishlistModal(){wishlistModal.classList.toggle("active"),wishlistModal.classList.contains("active")&&renderWishlistModal()}
+    function toggleHelpModal(){helpModal.classList.toggle("active")}
+    function showQuantityModal(a){quantityProductDisplay.innerHTML=`<img src="${a.itemImageUrl}" alt="${a.itemName}"><div class="quantity-modal-product-info"><h4>${a.itemName}</h4><div class="price">₹${a.itemPrice} / kg</div></div>`,quantityInput.value=1,quantityConfirmBtn.dataset.productId=a.id,quantityModal.classList.add("active")}
+    function hideQuantityModal(){quantityModal.classList.remove("active")}
+    quantityConfirmBtn.addEventListener("click",()=>{const a=allProducts.find(a=>a.id==quantityConfirmBtn.dataset.productId),t=parseFloat(quantityInput.value);a&&t>0?(addToCart(a,t),hideQuantityModal(),showCheckoutModal()):showToast("Please enter a valid quantity.","error")});
+
+    // --- CHECKOUT LOGIC ---
+    function showCheckoutStep(step) { [addressStep, paymentStep, confirmationStep].forEach(s => s.classList.remove('active-step')); step.classList.add('active-step'); if (step === addressStep) checkoutTitle.textContent = "Delivery Address"; else if (step === paymentStep) checkoutTitle.textContent = "Payment Method"; else checkoutTitle.textContent = "Success!"; }
+    function showCheckoutModal() {
+        if (cart.length === 0) { showToast("Your cart is empty!", "error"); return; }
+        addressForm.fullName.value = deliveryAddress.fullName || '';
+        addressForm.phone.value = deliveryAddress.phone || '';
+        addressForm.address.value = deliveryAddress.address || '';
+        addressForm.city.value = deliveryAddress.city || '';
+        addressForm.pincode.value = deliveryAddress.pincode || '';
+        showCheckoutStep(addressStep);
+        cartPanel.classList.remove('active');
+        checkoutModal.classList.add('active');
+    }
+    function hideCheckoutModal() { checkoutModal.classList.remove('active'); setTimeout(() => { paymentOptionsContainer.style.display = 'block'; upiQrDisplay.style.display = 'none'; showView('main-view'); }, 500); }
+    addressForm.addEventListener('submit', (e) => { 
+        e.preventDefault();
+        deliveryAddress = { fullName: e.target.fullName.value, phone: e.target.phone.value, address: e.target.address.value, city: e.target.city.value, pincode: e.target.pincode.value };
+        saveStateToLocalStorage();
+        showCheckoutStep(paymentStep); 
+    });
+    placeOrderBtn.addEventListener('click', () => { const payment = document.querySelector('input[name="payment"]:checked').value; if (payment === 'upi') handleUpiPayment(); else completeOrder('cod'); });
+    function handleUpiPayment() { paymentOptionsContainer.style.display = 'none'; upiQrDisplay.style.display = 'block'; checkoutTitle.textContent = "Scan to Pay"; const total = cart.reduce((s, i) => s + (i.itemPrice * i.quantity), 0).toFixed(2); const upiString = `upi://pay?pa=9655865777-3@axl&pn=Farmers%20Market&am=${total}&cu=INR&tn=OrderPayment`; qrCodeContainer.innerHTML = ''; new QRCode(qrCodeContainer, { text: upiString, width: 200, height: 200 }); upiAmountEl.textContent = `Amount to Pay: ₹${total}`; }
+    confirmPaymentBtn.addEventListener('click', () => completeOrder('upi'));
+    closeConfirmationBtn.addEventListener('click', hideCheckoutModal);
+
+    function completeOrder(paymentMethod) {
+        const newOrder = { 
+            id: 'FM' + Date.now(), 
+            date: new Date().toISOString(), 
+            items: JSON.parse(JSON.stringify(cart)), 
+            total: cart.reduce((s, i) => s + (i.itemPrice * i.quantity), 0), 
+            address: deliveryAddress, 
+            paymentMethod: paymentMethod,
+            status: 'Order Placed',
+            isCancelled: false,
+            cancellationReason: null,
+            estimatedDelivery: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(),
+            trackingHistory: [{ status: 'Order Placed', date: new Date().toISOString() }]
+        };
+        orders.unshift(newOrder);
+        cart = [];
+        saveStateToLocalStorage();
+        showCheckoutStep(confirmationStep);
+        updateCartIcon();
+        renderCartItems();
+    }
+
+    // --- NEW: Cancel & Invoice Logic ---
+    function showCancelModal(orderId) {
+        cancelForm.dataset.orderId = orderId;
+        cancelModal.classList.add('active');
+    }
+    cancelReasonSelect.addEventListener('change', (e) => {
+        otherReasonGroup.style.display = e.target.value === 'Other' ? 'block' : 'none';
+    });
+    cancelForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const orderId = e.target.dataset.orderId;
+        let reason = cancelReasonSelect.value;
+        if (reason === 'Other') {
+            reason = document.getElementById('other-reason').value.trim() || 'Other';
+        }
+        if (!reason) {
+            showToast('Please select a reason for cancellation.', 'error');
+            return;
+        }
+
+        const orderIndex = orders.findIndex(o => o.id === orderId);
+        if (orderIndex > -1) {
+            orders[orderIndex].isCancelled = true;
+            orders[orderIndex].status = 'Cancelled';
+            orders[orderIndex].cancellationReason = reason;
+            orders[orderIndex].cancellationDate = new Date().toISOString();
+            saveStateToLocalStorage();
+            showToast('Order has been cancelled successfully.', 'success');
+            cancelModal.classList.remove('active');
+            showOrderDetailView(orderId); // Refresh the view
+        }
+    });
+
+    function generateInvoice(orderId) {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.text("Invoice", 105, 20, null, null, 'center');
+        doc.setFontSize(14);
+        doc.text("Farmer's Market", 105, 30, null, null, 'center');
+
+        // Order Info
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Order ID: #${order.id.slice(-6).toUpperCase()}`, 20, 50);
+        doc.text(`Order Date: ${new Date(order.date).toLocaleDateString()}`, 20, 55);
+
+        // Address
+        doc.setFont('helvetica', 'bold');
+        doc.text("Shipping Address:", 20, 70);
+        doc.setFont('helvetica', 'normal');
+        const addressLines = [
+            order.address.fullName,
+            order.address.address,
+            `${order.address.city}, ${order.address.pincode}`,
+            `Phone: ${order.address.phone}`
+        ];
+        doc.text(addressLines, 20, 75);
+
+        // Items Table
+        const tableColumn = ["#", "Item Name", "Quantity (kg)", "Unit Price", "Total"];
+        const tableRows = [];
+        order.items.forEach((item, index) => {
+            const itemData = [
+                index + 1,
+                item.itemName,
+                item.quantity,
+                `₹${item.itemPrice.toFixed(2)}`,
+                `₹${(item.itemPrice * item.quantity).toFixed(2)}`
+            ];
+            tableRows.push(itemData);
+        });
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 100,
+            theme: 'grid'
+        });
+
+        // Totals
+        const finalY = doc.autoTable.previous.finalY;
+        const subtotal = order.total;
+        const tax = subtotal * 0.05; // Simulating 5% tax
+        const total = subtotal + tax;
+        doc.setFontSize(12);
+        doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 140, finalY + 10);
+        doc.text(`GST (5%): ₹${tax.toFixed(2)}`, 140, finalY + 17);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Total Amount: ₹${total.toFixed(2)}`, 140, finalY + 24);
+
+        // Footer
+        doc.setFontSize(10);
+        doc.text("Thank you for your purchase!", 105, 280, null, null, 'center');
+
+        doc.save(`invoice-${order.id.slice(-6).toUpperCase()}.pdf`);
+    }
+
+    // --- GLOBAL EVENT LISTENERS ---
+    document.addEventListener("DOMContentLoaded",()=>{
+        loadStateFromLocalStorage();
+        fetchAndRenderProducts();
+        updateCartIcon();
+        updateWishlistIcon();
+        menuToggleBuyer.addEventListener("click",()=>navLinks.classList.toggle("active"));
+    });
+    productSearchInput.addEventListener("input",filterAndRenderProducts);
+    locationSearchInput.addEventListener("input",filterAndRenderProducts);
+    categoryFiltersContainer.addEventListener("click",(e)=>{if(e.target.closest(".category-btn")){categoryFiltersContainer.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("active"));const button=e.target.closest(".category-btn");button.classList.add("active"),activeCategory=button.dataset.category,filterAndRenderProducts()}});
+    cartButton.addEventListener("click",toggleCartPanel);
+    wishlistButton.addEventListener("click",toggleWishlistModal);
+    helpButton.addEventListener("click",toggleHelpModal);
+    ordersButton.addEventListener("click",renderOrdersList);
+    quantityCloseBtn.addEventListener("click",hideQuantityModal);
+    document.querySelector(".checkout-btn").addEventListener("click",showCheckoutModal);
+    
+    // Universal Modal Close Logic
+    [cartPanel, wishlistModal, helpModal, quantityModal, checkoutModal, cancelModal].forEach(modal => {
+        const closeBtn = modal.querySelector('.cart-close-btn, .modal-close-btn');
+        if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+        if (modal.classList.contains('modal-overlay')) {
+             modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+        }
+    });
+  </script>
+</body>
+</html>
