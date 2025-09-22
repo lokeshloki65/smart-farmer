@@ -1,18 +1,11 @@
-requests
-Flask
-Flask-Cors
-cloudinary
-pymongo 
-bson
-firebase-admin
-gunicorn
-python-dotenv
+Flask==3.1.2
+Flask-Cors==6.0.1
+gunicorn==23.0.0
 
+firebase-admin==7.1.0
+google-api-python-client==2.138.0
 
+requests==2.32.5
 
-
-
-
-
-
-
+cloudinary==1.44.1
+python-dotenv==1.1.1
