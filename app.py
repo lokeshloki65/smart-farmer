@@ -2,7 +2,7 @@ import os
 import base64
 import json
 import requests
-from flask import Flask, request, jsonify, render_template, url_for
+from flask import Flask, request, jsonify, render_template, url_for 
 from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
