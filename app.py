@@ -16,7 +16,7 @@ from googleapiclient.discovery import build
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) 
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
