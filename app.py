@@ -5,7 +5,7 @@ import requests
 from flask import Flask, request, jsonify, render_template, url_for 
 from flask_cors import CORS
 import cloudinary 
-import cloudinary.uploader
+import cloudinary.uploader 
 import firebase_admin 
 from firebase_admin import credentials, firestore
 from datetime import datetime, timedelta 
